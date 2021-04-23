@@ -1,8 +1,12 @@
 import 'package:adhan/adhan.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
-import '../widgets/prayerTimesWidget.dart';
 import 'package:permission_handler/permission_handler.dart' as permHandler;
+import '../widgets/prayerTimesWidget.dart';
+import '../widgets/settingWidget.dart';
+import 'package:hive/hive.dart';
+import '../models/prayerParameterModel.dart';
+import '../models/savedCoordinateModel.dart';
 
 class HomePage extends StatefulWidget {
   HomePage({Key key, this.title}) : super(key: key);
@@ -15,47 +19,78 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   Coordinates _myCoordinates = Coordinates(0, 0);
+  int _selectedIndex = 0;
+  CalculationParameters _prayerParams =
+      CalculationMethod.values[0].getParameters();
 
   @override
   void initState() {
     super.initState();
+    _checkCoordinates();
+    _checkPrayerParams();
     _refreshFunc();
   }
 
   @override
   Widget build(BuildContext context) {
-    CalculationParameters params =
-        CalculationMethod.muslim_world_league.getParameters();
-    params.madhab = Madhab.shafi;
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.title),
+    return SafeArea(
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text(widget.title),
+        ),
+        body: _switchBody(_selectedIndex),
+        bottomNavigationBar: BottomNavigationBar(
+          items: const <BottomNavigationBarItem>[
+            BottomNavigationBarItem(
+              icon: Icon(Icons.home),
+              label: 'Home',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.settings),
+              label: 'Setting',
+            ),
+          ],
+          currentIndex: _selectedIndex,
+          selectedItemColor: Colors.amber[800],
+          onTap: _onItemTapped,
+        ),
       ),
-      body: PrayerTimesWidget(
-          coordinates: _myCoordinates,
-          prayerTimes: PrayerTimes.today(_myCoordinates, params),
-          refreshFunc: _refreshFunc),
     );
+  }
+
+  Widget _switchBody(int index) {
+    switch (index) {
+      case 0:
+        _checkPrayerParams();
+        return PrayerTimesWidget(
+            coordinates: _myCoordinates,
+            prayerTimes: PrayerTimes.today(_myCoordinates, _prayerParams),
+            refreshFunc: _refreshFunc);
+      case 1:
+        return SettingWidget();
+    }
+
+    return Text('default');
+  }
+
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
   }
 
   _refreshFunc() {
     _getCoordinates().then((coordinates) {
-      if (coordinates != null) {
-        if (_myCoordinates == null) {
-          setState(() {
-            _myCoordinates = coordinates;
-          });
-        } else {
-          if (_myCoordinates.latitude.toStringAsFixed(4) !=
-                  coordinates.latitude.toStringAsFixed(4) ||
-              _myCoordinates.longitude.toStringAsFixed(4) !=
-                  coordinates.longitude.toStringAsFixed(4)) {
-            setState(() {
-              _myCoordinates = coordinates;
-            });
-          }
-        }
+      if (coordinates == null) return;
+      if (_myCoordinates != null) {
+        if (_myCoordinates.latitude.toStringAsFixed(4) ==
+                coordinates.latitude.toStringAsFixed(4) &&
+            _myCoordinates.longitude.toStringAsFixed(4) ==
+                coordinates.longitude.toStringAsFixed(4)) return;
       }
+      setState(() {
+        _myCoordinates = coordinates;
+      });
     });
   }
 
@@ -101,6 +136,54 @@ class _HomePageState extends State<HomePage> {
     final locationData = await Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.high);
 
-    return Coordinates(locationData.latitude, locationData.longitude);
+    final coordinates =
+        Coordinates(locationData.latitude, locationData.longitude);
+
+    _saveCoordinates(coordinates);
+    return coordinates;
+  }
+
+  _checkPrayerParams() async {
+    Box<PrayerParameter> _hiveBox = Hive.box<PrayerParameter>('setting');
+    // print(CalculationMethod.values[0]);
+    // print(CalculationMethod.muslim_world_league.index);
+    PrayerParameter param = _hiveBox.get("prayerParams");
+    if (param != null) {
+      _prayerParams =
+          CalculationMethod.values[param.methodIndex].getParameters();
+      _prayerParams.madhab = Madhab.values[param.madhabIndex];
+      return;
+    }
+
+    _prayerParams.madhab = Madhab.shafi;
+    _hiveBox.put(
+        "prayerParams",
+        PrayerParameter(
+            methodIndex: _prayerParams.method.index,
+            madhabIndex: _prayerParams.madhab.index));
+    // print('putting hiveBox');
+  }
+
+  _saveCoordinates(Coordinates coord) async {
+    Box<SavedCoordinate> _hiveBox =
+        Hive.box<SavedCoordinate>('savedCoordinate');
+    _hiveBox.put("coordinate",
+        SavedCoordinate(latitude: coord.latitude, longitude: coord.longitude));
+  }
+
+  _checkCoordinates() async {
+    Box<SavedCoordinate> _hiveBox =
+        Hive.box<SavedCoordinate>('savedCoordinate');
+    SavedCoordinate coord = _hiveBox.get("coordinate");
+    if (coord != null) {
+      _myCoordinates = Coordinates(coord.latitude, coord.longitude);
+      return;
+    } else {
+      _hiveBox.put(
+          "coordinate",
+          SavedCoordinate(
+              latitude: _myCoordinates.latitude,
+              longitude: _myCoordinates.longitude));
+    }
   }
 }

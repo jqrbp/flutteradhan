@@ -1,6 +1,16 @@
 import 'package:flutter/material.dart';
 import 'pages/homepage.dart';
-void main() {
+import 'package:hive_flutter/hive_flutter.dart';
+import 'package:hive/hive.dart';
+import 'models/prayerParameterModel.dart';
+import 'models/savedCoordinateModel.dart';
+
+void main() async {
+  await Hive.initFlutter();
+  Hive.registerAdapter(PrayerParameterAdapter());
+  Hive.registerAdapter(SavedCoordinateAdapter());
+  await Hive.openBox<PrayerParameter>('setting');
+  await Hive.openBox<SavedCoordinate>('savedCoordinate');
   runApp(
     MyApp(),
   );
