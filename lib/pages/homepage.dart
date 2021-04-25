@@ -20,15 +20,12 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   Coordinates _myCoordinates = Coordinates(0, 0);
   int _selectedIndex = 0;
-  CalculationParameters _prayerParams =
-      CalculationMethod.values[0].getParameters();
-
+  PageController _pageController = PageController(initialPage: 0);
   @override
   void initState() {
-    super.initState();
-    _checkCoordinates();
-    _checkPrayerParams();
+    _myCoordinates = _getSavedCoordinates();
     _refreshFunc();
+    super.initState();
   }
 
   @override
@@ -38,17 +35,20 @@ class _HomePageState extends State<HomePage> {
         appBar: AppBar(
           title: Text(widget.title),
         ),
-        body: _switchBody(_selectedIndex),
+        body: PageView(controller: _pageController, onPageChanged: _onPageControllerChanged, children: [
+          PrayerTimesWidget(
+                    coordinates: _myCoordinates,
+                    prayerTimes:
+                        PrayerTimes.today(_myCoordinates, _getPrayerParams()),
+                    refreshFunc: _refreshFunc),
+          SettingWidget(),
+        ]),
         bottomNavigationBar: BottomNavigationBar(
           items: const <BottomNavigationBarItem>[
             BottomNavigationBarItem(
-              icon: Icon(Icons.home),
-              label: 'Home',
-            ),
+                icon: Icon(Icons.home), label: 'Halaman Muka'),
             BottomNavigationBarItem(
-              icon: Icon(Icons.settings),
-              label: 'Setting',
-            ),
+                icon: Icon(Icons.settings), label: 'Pengaturan'),
           ],
           currentIndex: _selectedIndex,
           selectedItemColor: Colors.amber[800],
@@ -58,25 +58,14 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _switchBody(int index) {
-    switch (index) {
-      case 0:
-        _checkPrayerParams();
-        return PrayerTimesWidget(
-            coordinates: _myCoordinates,
-            prayerTimes: PrayerTimes.today(_myCoordinates, _prayerParams),
-            refreshFunc: _refreshFunc);
-      case 1:
-        return SettingWidget();
-    }
-
-    return Text('default');
-  }
-
-  void _onItemTapped(int index) {
+  void _onPageControllerChanged  (index) {
     setState(() {
       _selectedIndex = index;
     });
+  }
+  
+  void _onItemTapped(int index) {
+    _pageController.animateToPage(index, duration: Duration(milliseconds: 200), curve: Curves.easeIn);
   }
 
   _refreshFunc() {
@@ -143,25 +132,22 @@ class _HomePageState extends State<HomePage> {
     return coordinates;
   }
 
-  _checkPrayerParams() async {
+  CalculationParameters _getPrayerParams() {
+    CalculationParameters prayerParams;
     Box<PrayerParameter> _hiveBox = Hive.box<PrayerParameter>('setting');
-    // print(CalculationMethod.values[0]);
-    // print(CalculationMethod.muslim_world_league.index);
     PrayerParameter param = _hiveBox.get("prayerParams");
     if (param != null) {
-      _prayerParams =
+      prayerParams =
           CalculationMethod.values[param.methodIndex].getParameters();
-      _prayerParams.madhab = Madhab.values[param.madhabIndex];
-      return;
+      prayerParams.madhab = Madhab.values[param.madhabIndex];
+    } else {
+      prayerParams = CalculationMethod.values[0].getParameters();
+      prayerParams.madhab = Madhab.values[0];
+      _hiveBox.put(
+          "prayerParams", PrayerParameter(methodIndex: 0, madhabIndex: 0));
     }
 
-    _prayerParams.madhab = Madhab.shafi;
-    _hiveBox.put(
-        "prayerParams",
-        PrayerParameter(
-            methodIndex: _prayerParams.method.index,
-            madhabIndex: _prayerParams.madhab.index));
-    // print('putting hiveBox');
+    return prayerParams;
   }
 
   _saveCoordinates(Coordinates coord) async {
@@ -171,19 +157,14 @@ class _HomePageState extends State<HomePage> {
         SavedCoordinate(latitude: coord.latitude, longitude: coord.longitude));
   }
 
-  _checkCoordinates() async {
+  Coordinates _getSavedCoordinates() {
     Box<SavedCoordinate> _hiveBox =
         Hive.box<SavedCoordinate>('savedCoordinate');
     SavedCoordinate coord = _hiveBox.get("coordinate");
     if (coord != null) {
-      _myCoordinates = Coordinates(coord.latitude, coord.longitude);
-      return;
-    } else {
-      _hiveBox.put(
-          "coordinate",
-          SavedCoordinate(
-              latitude: _myCoordinates.latitude,
-              longitude: _myCoordinates.longitude));
+      return Coordinates(coord.latitude, coord.longitude);
     }
+
+    return Coordinates(0, 0);
   }
 }

@@ -41,5 +41,10 @@
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
+	<key>NSLocationWhenInUseUsageDescription
+NSLocationAlwaysUsageDescription</key>
+	<string>Lokasi digunakan untuk menentukan posisi garis bujur dan lintang untuk perhitungan waktu sholat.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Lokasi digunakan untuk menentukan posisi garis bujur dan lintang untuk perhitungan waktu sholat.</string>
 </dict>
 </plist>
