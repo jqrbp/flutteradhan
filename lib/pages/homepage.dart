@@ -35,14 +35,17 @@ class _HomePageState extends State<HomePage> {
         appBar: AppBar(
           title: Text(widget.title),
         ),
-        body: PageView(controller: _pageController, onPageChanged: _onPageControllerChanged, children: [
-          PrayerTimesWidget(
-                    coordinates: _myCoordinates,
-                    prayerTimes:
-                        PrayerTimes.today(_myCoordinates, _getPrayerParams()),
-                    refreshFunc: _refreshFunc),
-          SettingWidget(),
-        ]),
+        body: PageView(
+            controller: _pageController,
+            onPageChanged: _onPageControllerChanged,
+            children: [
+              PrayerTimesWidget(
+                  coordinates: _myCoordinates,
+                  prayerTimes:
+                      PrayerTimes.today(_myCoordinates, _getPrayerParams()),
+                  refreshFunc: _refreshFunc),
+              SettingWidget(),
+            ]),
         bottomNavigationBar: BottomNavigationBar(
           items: const <BottomNavigationBarItem>[
             BottomNavigationBarItem(
@@ -58,14 +61,15 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  void _onPageControllerChanged  (index) {
+  void _onPageControllerChanged(index) {
     setState(() {
       _selectedIndex = index;
     });
   }
-  
+
   void _onItemTapped(int index) {
-    _pageController.animateToPage(index, duration: Duration(milliseconds: 200), curve: Curves.easeIn);
+    _pageController.animateToPage(index,
+        duration: Duration(milliseconds: 400), curve: Curves.ease);
   }
 
   _refreshFunc() {
