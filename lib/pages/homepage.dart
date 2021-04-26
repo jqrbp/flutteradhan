@@ -40,10 +40,11 @@ class _HomePageState extends State<HomePage> {
             onPageChanged: _onPageControllerChanged,
             children: [
               PrayerTimesWidget(
-                  coordinates: _myCoordinates,
-                  prayerTimes:
-                      PrayerTimes.today(_myCoordinates, _getPrayerParams()),
-                  refreshFunc: _refreshFunc),
+                coordinates: _myCoordinates,
+                prayerTimes:
+                    PrayerTimes.today(_myCoordinates, _getPrayerParams()),
+                refreshFunc: _refreshFunc,
+              ),
               SettingWidget(),
             ]),
         bottomNavigationBar: BottomNavigationBar(
@@ -59,6 +60,11 @@ class _HomePageState extends State<HomePage> {
         ),
       ),
     );
+  }
+
+  void _onPressedAlarmFunc(int prayerIndex) {
+    Box<SavedCoordinate> _hiveBox = Hive.box<SavedCoordinate>('prayerAlarm');
+    PrayerAlarm alarm = _hiveBox.get(prayerIndex.toString());
   }
 
   void _onPageControllerChanged(index) {

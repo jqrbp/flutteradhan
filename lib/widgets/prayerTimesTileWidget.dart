@@ -3,14 +3,14 @@ import 'package:flutter/material.dart';
 import 'package:adhan/adhan.dart';
 import 'package:intl/intl.dart';
 
-class PrayerTimesTileWidget extends StatelessWidget {
+class PrayerTimesTileWidget extends StatefulWidget {
   PrayerTimesTileWidget({Key key, this.prayerTimes, this.prayer})
       : super(key: key);
 
   final prayerTimes;
   final prayer;
 
-  final List<String> _prayerNames = [
+  final List<String> prayerNames = [
     '-',
     'Subuh',
     'Pagi',
@@ -21,23 +21,40 @@ class PrayerTimesTileWidget extends StatelessWidget {
   ];
 
   @override
-  Widget build(BuildContext context) {
-    String timeStr;
-    final DateTime _prayerDateTime = _getPrayerTime(prayerTimes, prayer);
+  _PrayerTimesTileWidgetState createState() => _PrayerTimesTileWidgetState();
+}
 
-    final Prayer _currPrayer = prayerTimes.currentPrayer();
-    final Prayer _nextPrayer = prayerTimes.nextPrayer();
+class _PrayerTimesTileWidgetState extends State<PrayerTimesTileWidget> {
+  String timeStr;
+  DateTime _prayerDateTime;
 
-    final bool _currPrayerFlag = _currPrayer == prayer;
-    final bool _nextPrayerFlag = _nextPrayer == prayer;
+  Prayer _currPrayer;
+  Prayer _nextPrayer;
 
-    final Color _textColor = _currPrayerFlag
+  bool _currPrayerFlag;
+  bool _nextPrayerFlag;
+
+  Color _textColor;
+
+  Duration _timeDuration = Duration(seconds: 0);
+
+  @override
+  void initState() {
+    final _prayerDateTime = _getPrayerTime(widget.prayerTimes, widget.prayer);
+
+    final _currPrayer = widget.prayerTimes.currentPrayer();
+    final _nextPrayer = widget.prayerTimes.nextPrayer();
+
+    final _currPrayerFlag = _currPrayer == widget.prayer;
+    final _nextPrayerFlag = _nextPrayer == widget.prayer;
+
+    final _textColor = _currPrayerFlag
         ? Colors.blue
         : _nextPrayerFlag
             ? Colors.red
             : Colors.black;
 
-    final Duration _timeDuration = _getTimeDiff(_prayerDateTime);
+    final _timeDuration = _getTimeDiff(_prayerDateTime);
 
     (_timeDuration.isNegative) ? timeStr = "-" : timeStr = "+";
     timeStr += " " +
@@ -45,11 +62,19 @@ class PrayerTimesTileWidget extends StatelessWidget {
         " Jam " +
         (_timeDuration.abs().inMinutes % 60).toString() +
         " Menit";
+
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return ListTile(
+      leading:
+          IconButton(icon: Icon(Icons.alarm), onPressed: onPressedAlarmFunc),
       selected: _currPrayerFlag,
       // tileColor: _nextPrayerFlag ? Colors.red : null,
       title: Text(
-        _prayerNames[prayer.index],
+        widget.prayerNames[widget.prayer.index],
         style: TextStyle(fontSize: 18, color: _textColor),
       ),
       subtitle: Text(
@@ -64,6 +89,8 @@ class PrayerTimesTileWidget extends StatelessWidget {
           : Text(""),
     );
   }
+
+  onPressedAlarmFunc() {}
 
   Duration _getTimeDiff(DateTime _time) {
     return DateTime.now().difference(_time);

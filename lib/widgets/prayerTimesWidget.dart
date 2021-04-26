@@ -6,28 +6,51 @@ import 'prayerTimesTileWidget.dart';
 
 class PrayerTimesWidget extends StatelessWidget {
   PrayerTimesWidget(
-      {Key key, this.coordinates, this.prayerTimes, this.refreshFunc})
+      {Key key,
+      this.coordinates,
+      this.prayerTimes,
+      this.refreshFunc,
+      this.onPressedAlarmFunc})
       : super(key: key);
 
   final coordinates;
   final prayerTimes;
   final refreshFunc;
-
+  final onPressedAlarmFunc;
   @override
   Widget build(BuildContext context) {
     return ListView(
       children: [
-        PrayerTimesTileWidget(prayerTimes: prayerTimes, prayer: Prayer.fajr),
+        PrayerTimesTileWidget(
+          prayerTimes: prayerTimes,
+          prayer: Prayer.fajr,
+        ),
         ListTile(
           title: Text('Pagi'),
           subtitle: Text(
             DateFormat.jm().format(prayerTimes.sunrise),
           ),
         ),
-        PrayerTimesTileWidget(prayerTimes: prayerTimes, prayer: Prayer.dhuhr),
-        PrayerTimesTileWidget(prayerTimes: prayerTimes, prayer: Prayer.asr),
-        PrayerTimesTileWidget(prayerTimes: prayerTimes, prayer: Prayer.maghrib),
-        PrayerTimesTileWidget(prayerTimes: prayerTimes, prayer: Prayer.isha),
+        PrayerTimesTileWidget(
+          prayerTimes: prayerTimes,
+          prayer: Prayer.dhuhr,
+          onPressedAlarmFunc: onPressedAlarmFunc(Prayer.dhuhr.index),
+        ),
+        PrayerTimesTileWidget(
+          prayerTimes: prayerTimes,
+          prayer: Prayer.asr,
+          onPressedAlarmFunc: onPressedAlarmFunc(Prayer.asr.index),
+        ),
+        PrayerTimesTileWidget(
+          prayerTimes: prayerTimes,
+          prayer: Prayer.maghrib,
+          onPressedAlarmFunc: onPressedAlarmFunc(Prayer.maghrib.index),
+        ),
+        PrayerTimesTileWidget(
+          prayerTimes: prayerTimes,
+          prayer: Prayer.isha,
+          onPressedAlarmFunc: onPressedAlarmFunc(Prayer.isha.index),
+        ),
         ListTile(
           title: Text('Qiyam'),
           subtitle: Text(
