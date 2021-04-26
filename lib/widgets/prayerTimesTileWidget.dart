@@ -3,14 +3,16 @@ import 'package:flutter/material.dart';
 import 'package:adhan/adhan.dart';
 import 'package:intl/intl.dart';
 
-class PrayerTimesTileWidget extends StatefulWidget {
-  PrayerTimesTileWidget({Key key, this.prayerTimes, this.prayer})
+class PrayerTimesTileWidget extends StatelessWidget {
+  PrayerTimesTileWidget({Key key, this.prayerTimes, this.prayer, this.onFlag, this.onAlarmPressed})
       : super(key: key);
 
   final prayerTimes;
   final prayer;
+  final onFlag;
+  final onAlarmPressed;
 
-  final List<String> prayerNames = [
+  final List<String> _prayerNames = [
     '-',
     'Subuh',
     'Pagi',
@@ -21,32 +23,18 @@ class PrayerTimesTileWidget extends StatefulWidget {
   ];
 
   @override
-  _PrayerTimesTileWidgetState createState() => _PrayerTimesTileWidgetState();
-}
+  Widget build(BuildContext context) {
+    String timeStr;
+    final _prayerTimes = prayerTimes;
+    final Prayer _prayer = prayer;
 
-class _PrayerTimesTileWidgetState extends State<PrayerTimesTileWidget> {
-  String timeStr;
-  DateTime _prayerDateTime;
+    final _prayerDateTime = _getPrayerTime(_prayerTimes, _prayer);
 
-  Prayer _currPrayer;
-  Prayer _nextPrayer;
+    final _currPrayer = _prayerTimes.currentPrayer();
+    final _nextPrayer = _prayerTimes.nextPrayer();
 
-  bool _currPrayerFlag;
-  bool _nextPrayerFlag;
-
-  Color _textColor;
-
-  Duration _timeDuration = Duration(seconds: 0);
-
-  @override
-  void initState() {
-    final _prayerDateTime = _getPrayerTime(widget.prayerTimes, widget.prayer);
-
-    final _currPrayer = widget.prayerTimes.currentPrayer();
-    final _nextPrayer = widget.prayerTimes.nextPrayer();
-
-    final _currPrayerFlag = _currPrayer == widget.prayer;
-    final _nextPrayerFlag = _nextPrayer == widget.prayer;
+    final _currPrayerFlag = _currPrayer == _prayer;
+    final _nextPrayerFlag = _nextPrayer == _prayer;
 
     final _textColor = _currPrayerFlag
         ? Colors.blue
@@ -63,18 +51,15 @@ class _PrayerTimesTileWidgetState extends State<PrayerTimesTileWidget> {
         (_timeDuration.abs().inMinutes % 60).toString() +
         " Menit";
 
-    super.initState();
-  }
-
-  @override
-  Widget build(BuildContext context) {
     return ListTile(
-      leading:
-          IconButton(icon: Icon(Icons.alarm), onPressed: onPressedAlarmFunc),
       selected: _currPrayerFlag,
       // tileColor: _nextPrayerFlag ? Colors.red : null,
+      leading: IconButton(
+        icon: onFlag == true ? Icon(Icons.alarm_on) : Icon(Icons.alarm_off),
+        onPressed: onAlarmPressed,
+      ),
       title: Text(
-        widget.prayerNames[widget.prayer.index],
+        _prayerNames[_prayer.index],
         style: TextStyle(fontSize: 18, color: _textColor),
       ),
       subtitle: Text(
@@ -89,8 +74,6 @@ class _PrayerTimesTileWidgetState extends State<PrayerTimesTileWidget> {
           : Text(""),
     );
   }
-
-  onPressedAlarmFunc() {}
 
   Duration _getTimeDiff(DateTime _time) {
     return DateTime.now().difference(_time);

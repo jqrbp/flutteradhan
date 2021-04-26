@@ -62,10 +62,10 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  void _onPressedAlarmFunc(int prayerIndex) {
-    Box<SavedCoordinate> _hiveBox = Hive.box<SavedCoordinate>('prayerAlarm');
-    PrayerAlarm alarm = _hiveBox.get(prayerIndex.toString());
-  }
+  // void _onPressedAlarmFunc(int prayerIndex) {
+  //   Box<SavedCoordinate> _hiveBox = Hive.box<SavedCoordinate>('prayerAlarm');
+  //   PrayerAlarm alarm = _hiveBox.get(prayerIndex.toString());
+  // }
 
   void _onPageControllerChanged(index) {
     setState(() {
