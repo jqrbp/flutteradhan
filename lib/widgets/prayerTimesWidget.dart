@@ -5,6 +5,8 @@ import 'package:intl/intl.dart';
 import 'prayerTimesTileWidget.dart';
 import '../models/prayerAlarmModel.dart';
 import 'package:hive/hive.dart';
+import '../utils/notificationHelper.dart';
+import '../main.dart';
 
 class PrayerTimesWidget extends StatefulWidget {
   PrayerTimesWidget(
@@ -27,14 +29,18 @@ class PrayerTimesWidget extends StatefulWidget {
 class _PrayerTimesWidgetState extends State<PrayerTimesWidget> {
   PrayerTimes prayerTimes;
   Coordinates coordinates;
-  List<bool> alarmFlag = Prayer.values.map((v) {return false;}).toList();
+  List<bool> alarmFlag = Prayer.values.map((v) {
+    return false;
+  }).toList();
 
   @override
   void initState() {
     prayerTimes = widget.prayerTimes;
     coordinates = widget.coordinates;
     setState(() {
-      alarmFlag = Prayer.values.map((v) {return _getAlarmFlag(v.index);}).toList();
+      alarmFlag = Prayer.values.map((v) {
+        return _getAlarmFlag(v.index);
+      }).toList();
     });
     super.initState();
   }
@@ -47,7 +53,8 @@ class _PrayerTimesWidgetState extends State<PrayerTimesWidget> {
           prayerTimes: prayerTimes,
           prayer: Prayer.fajr,
           onFlag: alarmFlag[Prayer.fajr.index],
-          onAlarmPressed: () => _onAlarmPressed(Prayer.fajr.index),
+          onAlarmPressed: () =>
+              _onAlarmPressed(Prayer.fajr.index, prayerTimes.fajr),
         ),
         ListTile(
           title: Text('Pagi'),
@@ -59,25 +66,29 @@ class _PrayerTimesWidgetState extends State<PrayerTimesWidget> {
           prayerTimes: prayerTimes,
           prayer: Prayer.dhuhr,
           onFlag: alarmFlag[Prayer.dhuhr.index],
-          onAlarmPressed: () => _onAlarmPressed(Prayer.dhuhr.index),
+          onAlarmPressed: () =>
+              _onAlarmPressed(Prayer.dhuhr.index, prayerTimes.dhuhr),
         ),
         PrayerTimesTileWidget(
           prayerTimes: prayerTimes,
           prayer: Prayer.asr,
           onFlag: alarmFlag[Prayer.asr.index],
-          onAlarmPressed: () => _onAlarmPressed(Prayer.asr.index),
+          onAlarmPressed: () =>
+              _onAlarmPressed(Prayer.asr.index, prayerTimes.asr),
         ),
         PrayerTimesTileWidget(
           prayerTimes: prayerTimes,
           prayer: Prayer.maghrib,
           onFlag: alarmFlag[Prayer.maghrib.index],
-          onAlarmPressed: () => _onAlarmPressed(Prayer.maghrib.index),
+          onAlarmPressed: () =>
+              _onAlarmPressed(Prayer.maghrib.index, prayerTimes.maghrib),
         ),
         PrayerTimesTileWidget(
           prayerTimes: prayerTimes,
           prayer: Prayer.isha,
           onFlag: alarmFlag[Prayer.isha.index],
-          onAlarmPressed: () => _onAlarmPressed(Prayer.isha.index),
+          onAlarmPressed: () =>
+              _onAlarmPressed(Prayer.isha.index, prayerTimes.isha),
         ),
         ListTile(
           title: Text('Qiyam'),
@@ -109,9 +120,23 @@ class _PrayerTimesWidgetState extends State<PrayerTimesWidget> {
     );
   }
 
-  _onAlarmPressed(int index) {
+  _onAlarmPressed(int index, DateTime prayerTime) {
     bool flag = !alarmFlag[index];
     _saveAlarmFlag(index, flag);
+    if (flag) {
+      scheduleNotification(
+          flutterLocalNotificationsPlugin,
+          index,
+          Prayer.values[index].toString(),
+          'Saatnya Sholat: ' +
+              Prayer.values[index].toString() +
+              ', Pukul: ' +
+              prayerTimes.toString(),
+          prayerTime);
+    } else {
+      turnOffNotificationById(
+          flutterLocalNotificationsPlugin, index);
+    }
     setState(() {
       alarmFlag[index] = flag;
     });

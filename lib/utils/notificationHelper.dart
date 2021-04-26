@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:rxdart/subjects.dart';
 import '../models/index.dart';
+import 'package:timezone/data/latest.dart' as tz;
+import 'package:timezone/timezone.dart' as tz;
 
 final BehaviorSubject<ReminderNotification> didReceiveLocalNotificationSubject =
     BehaviorSubject<ReminderNotification>();
@@ -30,6 +32,9 @@ Future<void> initNotifications(
       android: initializationSettingsAndroid,
       iOS: initializationSettingsIOS,
       macOS: initializationSettingsMacOS);
+
+  tz.initializeTimeZones();
+  
   await flutterLocalNotificationsPlugin.initialize(initializationSettings,
       onSelectNotification: (String payload) async {
     if (payload != null) {
@@ -69,11 +74,18 @@ Future<void> turnOffNotificationById(
 
 Future<void> scheduleNotification(
     FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin,
-    String id,
+    int id,
+    String name,
     String body,
     DateTime scheduledNotificationDateTime) async {
+
+  var tzTime = tz.TZDateTime.from(
+    scheduledNotificationDateTime,
+    tz.local,
+  );
+
   var androidPlatformChannelSpecifics = AndroidNotificationDetails(
-    id,
+    name,
     'Reminder notifications',
     'Remember about it',
     icon: 'app_icon',
@@ -82,8 +94,8 @@ Future<void> scheduleNotification(
   var platformChannelSpecifics = NotificationDetails(
       android: androidPlatformChannelSpecifics,
       iOS: iOSPlatformChannelSpecifics);
-  await flutterLocalNotificationsPlugin.zonedSchedule(0, 'Reminder', body,
-      scheduledNotificationDateTime, platformChannelSpecifics,
+  await flutterLocalNotificationsPlugin.zonedSchedule(
+      id, 'Reminder', body, tzTime, platformChannelSpecifics,
       androidAllowWhileIdle: true,
       uiLocalNotificationDateInterpretation:
           UILocalNotificationDateInterpretation.absoluteTime,
