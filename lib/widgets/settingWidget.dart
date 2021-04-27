@@ -3,9 +3,8 @@ import 'package:settings_ui/settings_ui.dart';
 import 'package:hive/hive.dart';
 import 'package:adhan/adhan.dart';
 import '../models/prayerParameterModel.dart';
-
-import 'methodWidget.dart';
-import 'madhabWidget.dart';
+import 'optionWidget.dart';
+import '../models/idLocale.dart';
 
 class SettingWidget extends StatefulWidget {
   @override
@@ -13,27 +12,6 @@ class SettingWidget extends StatefulWidget {
 }
 
 class _SettingWidgetState extends State<SettingWidget> {
-  Map<CalculationMethod, String> methodTitles = {
-    CalculationMethod.muslim_world_league: 'Muslim World League',
-    CalculationMethod.egyptian: 'Egyptian',
-    CalculationMethod.karachi: 'Karachi',
-    CalculationMethod.umm_al_qura: 'Umm Al-Qura',
-    CalculationMethod.dubai: 'Dubai',
-    CalculationMethod.qatar: 'Qatar',
-    CalculationMethod.kuwait: 'Kuwait',
-    CalculationMethod.moon_sighting_committee: 'Moonsighting Committee',
-    CalculationMethod.singapore: 'Singapore',
-    CalculationMethod.north_america: 'North America',
-    CalculationMethod.turkey: 'Turkey',
-    CalculationMethod.tehran: 'Tehran',
-    CalculationMethod.other: 'Other'
-  };
-
-  Map<Madhab, String> madhabTitles = {
-    Madhab.hanafi: 'Hanafi',
-    Madhab.shafi: 'Shafi'
-  };
-
   bool lockInBackground = true;
   bool notificationsEnabled = true;
   int methodIndex;
@@ -52,7 +30,7 @@ class _SettingWidgetState extends State<SettingWidget> {
         SettingsSection(
           tiles: [
             SettingsTile(
-              title: 'Method',
+              title: 'Metode Perhitungan',
               subtitle: methodTitles[CalculationMethod.values[methodIndex]] ??=
                   CalculationMethod.values[methodIndex].toString(),
               leading: Icon(Icons.calculate),
@@ -61,7 +39,7 @@ class _SettingWidgetState extends State<SettingWidget> {
               },
             ),
             SettingsTile(
-              title: 'Madhab',
+              title: 'Mazhab',
               subtitle: madhabTitles[Madhab.values[madhabIndex]] ??=
                   Madhab.values[madhabIndex].toString(),
               leading: Icon(Icons.calculate),
@@ -79,7 +57,8 @@ class _SettingWidgetState extends State<SettingWidget> {
     final result = await Navigator.push(
       context,
       MaterialPageRoute(
-          builder: (context) => MadhabWidget(titles: madhabTitles)),
+          builder: (context) =>
+              OptionWidget(titles: madhabTitles, optionList: Madhab)),
     );
 
     _writeSettingPrayerParams(methodIndex, result.index);
@@ -92,7 +71,8 @@ class _SettingWidgetState extends State<SettingWidget> {
     final result = await Navigator.push(
       context,
       MaterialPageRoute(
-          builder: (context) => MethodWidget(titles: methodTitles)),
+          builder: (context) => OptionWidget(
+              titles: methodTitles, optionList: CalculationMethod)),
     );
 
     _writeSettingPrayerParams(result.index, madhabIndex);

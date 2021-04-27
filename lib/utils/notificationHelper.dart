@@ -34,7 +34,7 @@ Future<void> initNotifications(
       macOS: initializationSettingsMacOS);
 
   tz.initializeTimeZones();
-  
+
   await flutterLocalNotificationsPlugin.initialize(initializationSettings,
       onSelectNotification: (String payload) async {
     if (payload != null) {
@@ -78,7 +78,6 @@ Future<void> scheduleNotification(
     String name,
     String body,
     DateTime scheduledNotificationDateTime) async {
-
   var tzTime = tz.TZDateTime.from(
     scheduledNotificationDateTime,
     tz.local,
@@ -95,7 +94,7 @@ Future<void> scheduleNotification(
       android: androidPlatformChannelSpecifics,
       iOS: iOSPlatformChannelSpecifics);
   await flutterLocalNotificationsPlugin.zonedSchedule(
-      id, 'Reminder', body, tzTime, platformChannelSpecifics,
+      id, 'Notifikasi', body, tzTime, platformChannelSpecifics,
       androidAllowWhileIdle: true,
       uiLocalNotificationDateInterpretation:
           UILocalNotificationDateInterpretation.absoluteTime,

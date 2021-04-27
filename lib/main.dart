@@ -7,6 +7,7 @@ import 'models/savedCoordinateModel.dart';
 import 'models/prayerAlarmModel.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'utils/notificationHelper.dart';
+import 'utils/locationHelper.dart';
 
 final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
     FlutterLocalNotificationsPlugin();
@@ -25,7 +26,7 @@ void main() async {
       await flutterLocalNotificationsPlugin.getNotificationAppLaunchDetails();
   await initNotifications(flutterLocalNotificationsPlugin);
   requestIOSPermissions(flutterLocalNotificationsPlugin);
-
+  await requestLocationPermision();
   runApp(
     MyApp(),
   );
