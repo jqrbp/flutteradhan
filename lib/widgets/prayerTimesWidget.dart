@@ -34,7 +34,11 @@ class _PrayerTimesWidgetState extends State<PrayerTimesWidget> {
       _latitudeText.text = _myCoordinates.latitude.toString();
       _longitudeText.text = _myCoordinates.longitude.toString();
       alarmFlag = Prayer.values.map((v) {
-        return _getAlarmFlag(v.index);
+        bool flag = _getAlarmFlag(v.index);
+        if (flag) {
+          _setAlarmNotification(_prayerTimes, v.index);
+        }
+        return flag;
       }).toList();
     });
     super.initState();
@@ -175,6 +179,7 @@ class _PrayerTimesWidgetState extends State<PrayerTimesWidget> {
         flutterLocalNotificationsPlugin,
         prayerIndex,
         prayer.toString(),
+        'Pengingat Sholat',
         'Saatnya Sholat: ' +
             prayerNames[prayerIndex] +
             ', Pukul ' +

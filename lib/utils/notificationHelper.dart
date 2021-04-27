@@ -76,6 +76,7 @@ Future<void> scheduleNotification(
     FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin,
     int id,
     String name,
+    String title,
     String body,
     DateTime scheduledNotificationDateTime) async {
   var tzTime = tz.TZDateTime.from(
@@ -94,7 +95,7 @@ Future<void> scheduleNotification(
       android: androidPlatformChannelSpecifics,
       iOS: iOSPlatformChannelSpecifics);
   await flutterLocalNotificationsPlugin.zonedSchedule(
-      id, 'Notifikasi', body, tzTime, platformChannelSpecifics,
+      id, title, body, tzTime, platformChannelSpecifics,
       androidAllowWhileIdle: true,
       uiLocalNotificationDateInterpretation:
           UILocalNotificationDateInterpretation.absoluteTime,

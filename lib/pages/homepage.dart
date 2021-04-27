@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../widgets/prayerTimesWidget.dart';
 import '../widgets/settingWidget.dart';
+import 'calendarPage.dart';
 
 class HomePage extends StatefulWidget {
   HomePage({Key key, this.title}) : super(key: key);
@@ -31,12 +32,15 @@ class _HomePageState extends State<HomePage> {
             onPageChanged: _onPageControllerChanged,
             children: [
               PrayerTimesWidget(),
+              CalendarPage(),
               SettingWidget(),
             ]),
         bottomNavigationBar: BottomNavigationBar(
           items: const <BottomNavigationBarItem>[
             BottomNavigationBarItem(
                 icon: Icon(Icons.home), label: 'Halaman Muka'),
+            BottomNavigationBarItem(
+                icon: Icon(Icons.calendar_today), label: 'Kalendar'),
             BottomNavigationBarItem(
                 icon: Icon(Icons.settings), label: 'Pengaturan'),
           ],
