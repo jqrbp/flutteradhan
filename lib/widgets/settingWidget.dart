@@ -54,30 +54,36 @@ class _SettingWidgetState extends State<SettingWidget> {
   }
 
   _onPressedMadhabSelection(BuildContext context) async {
-    final result = await Navigator.push(
+    List<String> names = Madhab.values
+        .map((t) => madhabTitles[t] == null ? t.toString() : madhabTitles[t])
+        .toList();
+    final index = await Navigator.push(
       context,
       MaterialPageRoute(
           builder: (context) =>
-              OptionWidget(titles: madhabTitles, optionList: Madhab)),
+              OptionWidget(title: 'Mazhab', optionNames: names)),
     );
 
-    _writeSettingPrayerParams(methodIndex, result.index);
+    _writeSettingPrayerParams(methodIndex, index);
     setState(() {
-      madhabIndex = result.index;
+      madhabIndex = index;
     });
   }
 
   _onPressedMethodSelection(BuildContext context) async {
-    final result = await Navigator.push(
+    List<String> names = CalculationMethod.values
+        .map((t) => methodTitles[t] == null ? t.toString() : methodTitles[t])
+        .toList();
+    final index = await Navigator.push(
       context,
       MaterialPageRoute(
-          builder: (context) => OptionWidget(
-              titles: methodTitles, optionList: CalculationMethod)),
+          builder: (context) =>
+              OptionWidget(title: 'Metode Perhitungan', optionNames: names)),
     );
 
-    _writeSettingPrayerParams(result.index, madhabIndex);
+    _writeSettingPrayerParams(index, madhabIndex);
     setState(() {
-      methodIndex = result.index;
+      methodIndex = index;
     });
   }
 
