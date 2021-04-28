@@ -1,6 +1,5 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:adhan/adhan.dart';
 import 'package:intl/intl.dart';
 import '../models/idLocale.dart';
 import '../utils/prayerTimesHelper.dart';
@@ -10,6 +9,7 @@ class PrayerTimesTileWidget extends StatelessWidget {
       {Key key,
       this.prayerTimes,
       this.prayer,
+      this.timeDuration,
       this.onFlag,
       this.onAlarmPressed})
       : super(key: key);
@@ -18,55 +18,61 @@ class PrayerTimesTileWidget extends StatelessWidget {
   final prayer;
   final onFlag;
   final onAlarmPressed;
+  final timeDuration;
 
   @override
   Widget build(BuildContext context) {
+    final String prayerNameStr = prayerNames[prayer.index];
+    final bool currPrayerFlag = prayerTimes.currentPrayer() == prayer;
+    final bool nextPrayerFlag = prayerTimes.nextPrayer() == prayer;
+    final Color textColor = _genTextColor(currPrayerFlag, nextPrayerFlag);
+    final String subtitleStr =
+        DateFormat.jm().format(getPrayerTime(prayerTimes, prayer));
+        
+    final String timeStr = _genTimeStr(timeDuration, currPrayerFlag || nextPrayerFlag);
+    final leadingIcon = onFlag == true ? Icon(Icons.alarm_on) : Icon(Icons.alarm_off);
+
     return ListTile(
-      selected: prayerTimes.currentPrayer() == prayer,
+      selected: currPrayerFlag,
       leading: IconButton(
-        icon: onFlag == true ? Icon(Icons.alarm_on) : Icon(Icons.alarm_off),
+        icon: leadingIcon,
         onPressed: onAlarmPressed,
       ),
       title: Text(
-        prayerNames[prayer.index],
-        style:
-            TextStyle(fontSize: 18, color: _genTextColor(prayerTimes, prayer)),
+        prayerNameStr,
+        style: TextStyle(fontSize: 18, color: textColor),
       ),
       subtitle: Text(
-        DateFormat.jm().format(getPrayerTime(prayerTimes, prayer)),
-        style: TextStyle(color: _genTextColor(prayerTimes, prayer)),
+        subtitleStr,
+        style: TextStyle(color: textColor),
       ),
-      trailing: (prayerTimes.currentPrayer() == prayer ||
-              prayerTimes.nextPrayer() == prayer)
-          ? Text(
-              _genTimeStr(prayerTimes, prayer),
-              style: TextStyle(
-                  fontSize: 18, color: _genTextColor(prayerTimes, prayer)),
-            )
-          : Text(""),
+      trailing: Text(
+              timeStr,
+              style: TextStyle(fontSize: 18, color: textColor),
+            ),
     );
   }
 
-  Color _genTextColor(PrayerTimes prayerTimes, Prayer prayer) {
-    Color textColor = prayerTimes.currentPrayer() == prayer
+  Color _genTextColor(bool currPrayerFlag, bool nextPrayerFlag) {
+    Color textColor = currPrayerFlag
         ? Colors.blue
-        : prayerTimes.nextPrayer() == prayer
+        : nextPrayerFlag
             ? Colors.red
             : Colors.black;
     return textColor;
   }
 
-  String _genTimeStr(PrayerTimes prayerTimes, Prayer prayer) {
-    String timeStr;
-    final prayerDateTime = getPrayerTime(prayerTimes, prayer);
-    final timeDuration = getTimeDiff(prayerDateTime);
-
-    (timeDuration.isNegative) ? timeStr = "-" : timeStr = "+";
-    timeStr += " " +
-        timeDuration.abs().inHours.toString() +
-        " Jam " +
-        (timeDuration.abs().inMinutes % 60).toString() +
-        " Menit";
+  String _genTimeStr(Duration timeDuration, bool setFlag) {
+    String timeStr = "";
+    
+    if (setFlag) {
+      (timeDuration.isNegative) ? timeStr = "-" : timeStr = "+";
+      timeStr += " " +
+          timeDuration.abs().inHours.toString() +
+          " Jam " +
+          (timeDuration.abs().inMinutes % 60).toString() +
+          " Menit";
+    }
     return timeStr;
   }
 }

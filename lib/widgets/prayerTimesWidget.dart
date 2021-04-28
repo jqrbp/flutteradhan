@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:adhan/adhan.dart';
@@ -18,6 +19,7 @@ class PrayerTimesWidget extends StatefulWidget {
 }
 
 class _PrayerTimesWidgetState extends State<PrayerTimesWidget> {
+  Timer _timer;
   PrayerTimes _prayerTimes;
   Coordinates _myCoordinates;
   TextEditingController _latitudeText = TextEditingController();
@@ -25,12 +27,20 @@ class _PrayerTimesWidgetState extends State<PrayerTimesWidget> {
   List<bool> alarmFlag = Prayer.values.map((v) {
     return false;
   }).toList();
+  List<Duration> _timeDuration =
+      Prayer.values.map((v) => Duration(seconds: 0)).toList();
 
   @override
   void initState() {
     setState(() {
       _myCoordinates = getSavedCoordinates();
       _prayerTimes = PrayerTimes.today(_myCoordinates, getPrayerParams());
+
+      _timeDuration = Prayer.values.map((p) {
+        final prayerDateTime = getPrayerTime(_prayerTimes, p);
+        return getTimeDiff(prayerDateTime);
+      }).toList();
+
       _latitudeText.text = _myCoordinates.latitude.toString();
       _longitudeText.text = _myCoordinates.longitude.toString();
       alarmFlag = Prayer.values.map((v) {
@@ -40,8 +50,24 @@ class _PrayerTimesWidgetState extends State<PrayerTimesWidget> {
         }
         return flag;
       }).toList();
+      
+      _timer = Timer.periodic(Duration(seconds: 60), (Timer t) {
+        setState(() {
+          _prayerTimes = PrayerTimes.today(_myCoordinates, getPrayerParams());
+          _timeDuration = Prayer.values.map((p) {
+            final prayerDateTime = getPrayerTime(_prayerTimes, p);
+            return getTimeDiff(prayerDateTime);
+          }).toList();
+        });
+      });
     });
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
   }
 
   @override
@@ -77,6 +103,7 @@ class _PrayerTimesWidgetState extends State<PrayerTimesWidget> {
         PrayerTimesTileWidget(
           prayerTimes: _prayerTimes,
           prayer: Prayer.fajr,
+          timeDuration: _timeDuration[Prayer.fajr.index],
           onFlag: alarmFlag[Prayer.fajr.index],
           onAlarmPressed: () =>
               _onAlarmPressed(Prayer.fajr.index, _prayerTimes.fajr),
@@ -90,6 +117,7 @@ class _PrayerTimesWidgetState extends State<PrayerTimesWidget> {
         PrayerTimesTileWidget(
           prayerTimes: _prayerTimes,
           prayer: Prayer.dhuhr,
+          timeDuration: _timeDuration[Prayer.dhuhr.index],
           onFlag: alarmFlag[Prayer.dhuhr.index],
           onAlarmPressed: () =>
               _onAlarmPressed(Prayer.dhuhr.index, _prayerTimes.dhuhr),
@@ -97,6 +125,7 @@ class _PrayerTimesWidgetState extends State<PrayerTimesWidget> {
         PrayerTimesTileWidget(
           prayerTimes: _prayerTimes,
           prayer: Prayer.asr,
+          timeDuration: _timeDuration[Prayer.asr.index],
           onFlag: alarmFlag[Prayer.asr.index],
           onAlarmPressed: () =>
               _onAlarmPressed(Prayer.asr.index, _prayerTimes.asr),
@@ -104,6 +133,7 @@ class _PrayerTimesWidgetState extends State<PrayerTimesWidget> {
         PrayerTimesTileWidget(
           prayerTimes: _prayerTimes,
           prayer: Prayer.maghrib,
+          timeDuration: _timeDuration[Prayer.maghrib.index],
           onFlag: alarmFlag[Prayer.maghrib.index],
           onAlarmPressed: () =>
               _onAlarmPressed(Prayer.maghrib.index, _prayerTimes.maghrib),
@@ -111,6 +141,7 @@ class _PrayerTimesWidgetState extends State<PrayerTimesWidget> {
         PrayerTimesTileWidget(
           prayerTimes: _prayerTimes,
           prayer: Prayer.isha,
+          timeDuration: _timeDuration[Prayer.isha.index],
           onFlag: alarmFlag[Prayer.isha.index],
           onAlarmPressed: () =>
               _onAlarmPressed(Prayer.isha.index, _prayerTimes.isha),

@@ -27,6 +27,7 @@ void main() async {
   await initNotifications(flutterLocalNotificationsPlugin);
   requestIOSPermissions(flutterLocalNotificationsPlugin);
   await requestLocationPermision();
+  
   runApp(
     MyApp(),
   );
