@@ -18,7 +18,7 @@ class TaskStatusAdapter extends TypeAdapter<TaskStatus> {
     };
     return TaskStatus(
       id: fields[0] as String,
-      runFlag: fields[1] as bool,
+      lastAccessTime: fields[1] as String,
     );
   }
 
@@ -29,7 +29,7 @@ class TaskStatusAdapter extends TypeAdapter<TaskStatus> {
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
-      ..write(obj.runFlag);
+      ..write(obj.lastAccessTime);
   }
 
   @override

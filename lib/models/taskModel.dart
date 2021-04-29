@@ -11,7 +11,12 @@ class TaskStatus {
   final String id;
 
   @HiveField(1)
-  final bool runFlag;
+  final String lastAccessTime;
 
-  TaskStatus({this.id, this.runFlag});
+  TaskStatus({this.id, this.lastAccessTime});
+
+  @override
+  String toString() {
+    return 'worker.'+id+'.'+lastAccessTime;
+  }
 }

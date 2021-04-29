@@ -5,6 +5,7 @@ import 'package:hive/hive.dart';
 import 'models/prayerParameterModel.dart';
 import 'models/savedCoordinateModel.dart';
 import 'models/prayerAlarmModel.dart';
+import 'models/taskModel.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'utils/notificationHelper.dart';
 import 'utils/locationHelper.dart';
@@ -19,9 +20,11 @@ void main() async {
   Hive.registerAdapter(PrayerParameterAdapter());
   Hive.registerAdapter(SavedCoordinateAdapter());
   Hive.registerAdapter(PrayerAlarmAdapter());
+  Hive.registerAdapter(TaskStatusAdapter());
   await Hive.openBox<PrayerParameter>('setting');
   await Hive.openBox<SavedCoordinate>('savedCoordinate');
   await Hive.openBox<PrayerAlarm>('prayerAlarm');
+  await Hive.openBox<TaskStatus>('taskStatus');
 
   notificationAppLaunchDetails =
       await flutterLocalNotificationsPlugin.getNotificationAppLaunchDetails();

@@ -5,8 +5,8 @@ import '../utils/alarmHelper.dart';
 import '../utils/locationHelper.dart';
 import '../utils/prayerTimesHelper.dart';
 import '../main.dart';
-// import '../models/taskModel.dart';
-// import 'package:hive/hive.dart';
+import '../models/taskModel.dart';
+import 'package:hive/hive.dart';
 
 final workManager = new Workmanager();
 const updatePrayerTimeTaskID = '0';
@@ -24,6 +24,11 @@ void callbackDispatcher() {
   });
 }
 
+void _saveTaskStatus(String id, TaskStatus status) {
+  Box<TaskStatus> _hiveBox = Hive.box<TaskStatus>('taskStatus');
+  _hiveBox.put(id, status);
+}
+
 void _updateAlarmBackgroundFunc() {
   bool flag;
   final Coordinates coords = getSavedCoordinates();
@@ -34,6 +39,8 @@ void _updateAlarmBackgroundFunc() {
     setAlarmNotification(prayerTimes, p.index, flag);
   });
 
+  _saveTaskStatus(updatePrayerTimeTaskID, TaskStatus(id: updatePrayerTimeTaskID, lastAccessTime: DateTime.now().toString()));
+
   showNotification(flutterLocalNotificationsPlugin, 100, 'updateAlarm',
       'Waktu Sholat', 'Memperbaharui data...', 'item');
 }
@@ -41,7 +48,7 @@ void _updateAlarmBackgroundFunc() {
 Future<void> initWorkerManager() async {
   await workManager.initialize(
     callbackDispatcher,
-    isInDebugMode: true,
+    // isInDebugMode: true,
   );
 }
 
@@ -61,21 +68,17 @@ Future<void> enablePeriodicTask(
     id,
     taskName,
     frequency: duration,
+    existingWorkPolicy: ExistingWorkPolicy.replace
   );
 }
 
-// void _saveTaskStatus(String id, TaskStatus status) {
-//   Box<TaskStatus> _hiveBox = Hive.box<TaskStatus>('taskStatus');
-//   _hiveBox.put(id, status);
-// }
+TaskStatus getTaskStatus(String id) {
+  Box<TaskStatus> _hiveBox = Hive.box<TaskStatus>('taskStatus');
+  TaskStatus status = _hiveBox.get(id);
 
-// bool _getTaskRunFlag(String id) {
-//   Box<TaskStatus> _hiveBox = Hive.box<TaskStatus>('taskStatus');
-//   TaskStatus status = _hiveBox.get(id);
-
-//   if (status != null) {
-//     return status.runFlag;
-//   }
-//   _saveTaskStatus(id, TaskStatus(id: id, runFlag: false));
-//   return false;
-// }
+  if (status == null) {
+    status = TaskStatus(id: id, lastAccessTime: DateTime.now().toString());
+    _saveTaskStatus(id, status);
+  }
+  return status;
+}

@@ -48,10 +48,8 @@ class _PrayerTimesWidgetState extends State<PrayerTimesWidget> {
       });
     });
 
-    cancelTask(updatePrayerTimeTaskID).then((_) => enablePeriodicTask(
-        updatePrayerTimeTaskID,
-        updatePrayerTimeTaskName,
-        Duration(minutes: 15)));
+    enablePeriodicTask(updatePrayerTimeTaskID, updatePrayerTimeTaskName,
+        Duration(minutes: 15));
 
     super.initState();
   }

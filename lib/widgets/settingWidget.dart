@@ -5,6 +5,7 @@ import 'package:adhan/adhan.dart';
 import '../models/prayerParameterModel.dart';
 import 'optionWidget.dart';
 import '../models/idLocale.dart';
+import '../utils/workerManagerHelper.dart';
 
 class SettingWidget extends StatefulWidget {
   @override
@@ -29,6 +30,14 @@ class _SettingWidgetState extends State<SettingWidget> {
       sections: [
         SettingsSection(
           tiles: [
+            SettingsTile(
+              title: 'Worker Info',
+              subtitle: getTaskStatus(updatePrayerTimeTaskID).toString(),
+              leading: Icon(Icons.calculate),
+              onPressed: (context) {
+                _onPressedMethodSelection(context);
+              },
+            ),
             SettingsTile(
               title: 'Metode Perhitungan',
               subtitle: methodTitles[CalculationMethod.values[methodIndex]] ??=
