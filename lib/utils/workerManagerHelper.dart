@@ -4,12 +4,12 @@ import 'package:adhan/adhan.dart';
 import '../utils/alarmHelper.dart';
 import '../utils/locationHelper.dart';
 import '../utils/prayerTimesHelper.dart';
-import '../main.dart';
 import '../models/taskModel.dart';
 import 'package:hive/hive.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
-final workManager = new Workmanager();
-const updatePrayerTimeTaskID = '0';
+final workManager = Workmanager();
+const updatePrayerTimeTaskID = '50';
 const updatePrayerTimeTaskName = 'updatePrayerTimeTask';
 
 void callbackDispatcher() {
@@ -34,6 +34,16 @@ void _updateAlarmBackgroundFunc() {
   final Coordinates coords = getSavedCoordinates();
   final PrayerTimes prayerTimes = PrayerTimes.today(coords, getPrayerParams());
 
+  FlutterLocalNotificationsPlugin workerNotificationPlugin = new FlutterLocalNotificationsPlugin();
+      
+  // app_icon needs to be a added as a drawable
+  // resource to the Android head project.
+  var android = new AndroidInitializationSettings('app_icon');
+  var iOS = new IOSInitializationSettings();
+    
+  // initialise settings for both Android and iOS device.
+  var settings = new InitializationSettings(android: android, iOS: iOS);
+  
   Prayer.values.forEach((p) {
     flag = getAlarmFlag(p.index);
     setAlarmNotification(prayerTimes, p.index, flag);
@@ -41,7 +51,8 @@ void _updateAlarmBackgroundFunc() {
 
   _saveTaskStatus(updatePrayerTimeTaskID, TaskStatus(id: updatePrayerTimeTaskID, lastAccessTime: DateTime.now().toString()));
 
-  showNotification(flutterLocalNotificationsPlugin, 100, 'updateAlarm',
+  workerNotificationPlugin.initialize(settings);
+  showNotification(workerNotificationPlugin, 100, 'updateAlarm',
       'Waktu Sholat', 'Memperbaharui data...', 'item');
 }
 
