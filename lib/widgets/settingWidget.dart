@@ -33,10 +33,8 @@ class _SettingWidgetState extends State<SettingWidget> {
             SettingsTile(
               title: 'Worker Info',
               subtitle: getTaskStatus(updatePrayerTimeTaskID).toString(),
-              leading: Icon(Icons.calculate),
-              onPressed: (context) {
-                _onPressedMethodSelection(context);
-              },
+              leading: Icon(Icons.work),
+              enabled: false,
             ),
             SettingsTile(
               title: 'Metode Perhitungan',
