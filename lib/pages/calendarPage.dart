@@ -10,7 +10,7 @@ class CalendarPage extends StatefulWidget {
 
 class _CalendarPageState extends State<CalendarPage> {
   ValueNotifier<List<Event>> _selectedEvents;
-  CalendarFormat _calendarFormat = CalendarFormat.month;
+  // CalendarFormat _calendarFormat = CalendarFormat.month;
   RangeSelectionMode _rangeSelectionMode = RangeSelectionMode
       .toggledOff; // Can be toggled on/off by longpressing a date
   DateTime _focusedDay = DateTime.now();
@@ -90,26 +90,78 @@ class _CalendarPageState extends State<CalendarPage> {
           selectedDayPredicate: (day) => isSameDay(_selectedDay, day),
           rangeStartDay: _rangeStart,
           rangeEndDay: _rangeEnd,
-          calendarFormat: _calendarFormat,
+          // calendarFormat: _calendarFormat,
           rangeSelectionMode: _rangeSelectionMode,
           eventLoader: _getEventsForDay,
           startingDayOfWeek: StartingDayOfWeek.monday,
+          availableCalendarFormats: const {CalendarFormat.month: 'Month'},
           calendarStyle: CalendarStyle(
-            // Use `CalendarStyle` to customize the UI
+            //   // Use `CalendarStyle` to customize the UI
             outsideDaysVisible: false,
+            //   defaultDecoration: BoxDecoration(shape: BoxShape.rectangle),
+            //   rowDecoration: BoxDecoration(shape: BoxShape.rectangle),
           ),
           onDaySelected: _onDaySelected,
           onRangeSelected: _onRangeSelected,
-          onFormatChanged: (format) {
-            if (_calendarFormat != format) {
-              setState(() {
-                _calendarFormat = format;
-              });
-            }
-          },
+          // onFormatChanged: (format) {
+          //   if (_calendarFormat != format) {
+          //     setState(() {
+          //       _calendarFormat = format;
+          //     });
+          //   }
+          // },
           onPageChanged: (focusedDay) {
             _focusedDay = focusedDay;
           },
+          calendarBuilders: CalendarBuilders(
+            defaultBuilder: (context, date, events) => Container(
+                alignment: Alignment.topCenter,
+                decoration: BoxDecoration(
+                    color: Colors.transparent,
+                    borderRadius: BorderRadius.circular(10.0)),
+                child: Text(
+                  date.day.toString(),
+                  style: TextStyle(color: Colors.black),
+                )),
+            markerBuilder: (context, date, events) => Container(
+              alignment: Alignment.bottomRight,
+              child: events.length > 0
+                  ? Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(4.0),
+                        border: Border.all(width: 5.0, color: Colors.orange),
+                        color: Colors.orange,
+                      ),
+                      child: Text(events.length.toString(),
+                          style: TextStyle(color: Colors.white)))
+                  : null,
+            ),
+            selectedBuilder: (context, date, events) => Container(
+                margin: const EdgeInsets.all(4.0),
+                alignment: Alignment.topLeft,
+                decoration: BoxDecoration(
+                    // color: Theme.of(context).primaryColor,
+                    color: Colors.lightBlue,
+                    borderRadius: BorderRadius.circular(10.0)),
+                child: Container(
+                    margin: EdgeInsets.all(3),
+                    child: Text(
+                      date.day.toString(),
+                      style: TextStyle(color: Colors.white),
+                    ))),
+            todayBuilder: (context, date, events) => Container(
+                margin: const EdgeInsets.all(4.0),
+                alignment: Alignment.topLeft,
+                decoration: BoxDecoration(
+                    color: Colors.indigoAccent,
+                    borderRadius: BorderRadius.circular(10.0)),
+                child: Container(
+                    margin: EdgeInsets.all(3),
+                    child: Text(
+                      date.day.toString(),
+                      style: TextStyle(color: Colors.white),
+                    ))),
+          ),
         ),
         const SizedBox(height: 8.0),
         Expanded(

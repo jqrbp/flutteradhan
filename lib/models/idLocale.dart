@@ -28,11 +28,12 @@ Map<int, String> bulanNames = {
 const List<String> prayerNames = [
   '-',
   'Subuh',
-  'Pagi',
+  'Terbit',
   'Dhuhur',
   'Ashar',
   'Maghrib',
-  'Isya'
+  'Isya',
+  'Qiyam'
 ];
 
 Map<CalculationMethod, String> methodTitles = {

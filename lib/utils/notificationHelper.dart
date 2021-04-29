@@ -45,7 +45,12 @@ Future<void> initNotifications(
 }
 
 Future<void> showNotification(
-    FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin) async {
+    FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin,
+    int id,
+    String name,
+    String title,
+    String body,
+    String payload) async {
   const AndroidNotificationDetails androidPlatformChannelSpecifics =
       AndroidNotificationDetails('0', 'Jeki', 'your channel description',
           importance: Importance.max,
@@ -56,9 +61,8 @@ Future<void> showNotification(
       android: androidPlatformChannelSpecifics,
       iOS: iOSPlatformChannelSpecifics);
 
-  await flutterLocalNotificationsPlugin.show(
-      0, 'plain title', 'plain body', platformChannelSpecifics,
-      payload: 'item x');
+  await flutterLocalNotificationsPlugin
+      .show(id, title, body, platformChannelSpecifics, payload: payload);
 }
 
 Future<void> turnOffNotification(
@@ -104,11 +108,13 @@ Future<void> scheduleNotification(
 
 Future<void> scheduleNotificationPeriodically(
     FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin,
-    String id,
+    int id,
+    String name,
+    String title,
     String body,
     RepeatInterval interval) async {
   var androidPlatformChannelSpecifics = AndroidNotificationDetails(
-    id,
+    name,
     'Reminder notifications',
     'Remember about it',
     icon: 'smile_icon',
@@ -118,7 +124,7 @@ Future<void> scheduleNotificationPeriodically(
       android: androidPlatformChannelSpecifics,
       iOS: iOSPlatformChannelSpecifics);
   await flutterLocalNotificationsPlugin.periodicallyShow(
-      0, 'Reminder', body, interval, platformChannelSpecifics);
+      id, title, body, interval, platformChannelSpecifics);
 }
 
 void requestIOSPermissions(

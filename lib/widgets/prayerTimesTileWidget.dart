@@ -1,55 +1,69 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
-import '../models/idLocale.dart';
-import '../utils/prayerTimesHelper.dart';
 
 class PrayerTimesTileWidget extends StatelessWidget {
   PrayerTimesTileWidget(
       {Key key,
       this.prayerTimes,
       this.prayer,
+      this.prayerName = "",
+      this.prayerTime = "",
       this.timeDuration,
       this.onFlag,
+      this.disableFlag = true,
       this.onAlarmPressed})
       : super(key: key);
 
   final prayerTimes;
   final prayer;
+  final prayerTime;
   final onFlag;
   final onAlarmPressed;
   final timeDuration;
+  final disableFlag;
+  final prayerName;
 
   @override
   Widget build(BuildContext context) {
-    final String prayerNameStr = prayerNames[prayer.index];
-    final bool currPrayerFlag = prayerTimes.currentPrayer() == prayer;
-    final bool nextPrayerFlag = prayerTimes.nextPrayer() == prayer;
-    final Color textColor = _genTextColor(currPrayerFlag, nextPrayerFlag);
-    final String subtitleStr =
-        DateFormat.jm().format(getPrayerTime(prayerTimes, prayer));
-        
-    final String timeStr = _genTimeStr(timeDuration, currPrayerFlag || nextPrayerFlag);
-    final leadingIcon = onFlag == true ? Icon(Icons.alarm_on) : Icon(Icons.alarm_off);
+    final bool currPrayerFlag =
+        prayer == null ? false : prayerTimes.currentPrayer() == prayer;
+    final bool nextPrayerFlag =
+        prayer == null ? false : prayerTimes.nextPrayer() == prayer;
+    final Color textColor = !disableFlag
+        ? _genTextColor(currPrayerFlag, nextPrayerFlag)
+        : Colors.blueGrey;
+    final double fontSize = !disableFlag ? 18 : 16;
+
+    final String timeStr = !disableFlag
+        ? _genTimeStr(timeDuration, currPrayerFlag || nextPrayerFlag)
+        : "";
+    final leadingIcon = disableFlag
+        ? Icon(Icons.block_flipped, color: Colors.blueGrey.withOpacity(0.4))
+        : onFlag
+            ? Icon(Icons.alarm_on)
+            : Icon(Icons.alarm_off);
+
+    final onPressedFunc = disableFlag ? null : onAlarmPressed;
 
     return ListTile(
       selected: currPrayerFlag,
       leading: IconButton(
+        color: Colors.grey,
         icon: leadingIcon,
-        onPressed: onAlarmPressed,
+        onPressed: onPressedFunc,
       ),
       title: Text(
-        prayerNameStr,
-        style: TextStyle(fontSize: 18, color: textColor),
+        prayerName,
+        style: TextStyle(fontSize: fontSize, color: textColor),
       ),
       subtitle: Text(
-        subtitleStr,
+        prayerTime,
         style: TextStyle(color: textColor),
       ),
       trailing: Text(
-              timeStr,
-              style: TextStyle(fontSize: 18, color: textColor),
-            ),
+        timeStr,
+        style: TextStyle(fontSize: fontSize, color: textColor),
+      ),
     );
   }
 
@@ -64,7 +78,7 @@ class PrayerTimesTileWidget extends StatelessWidget {
 
   String _genTimeStr(Duration timeDuration, bool setFlag) {
     String timeStr = "";
-    
+
     if (setFlag) {
       (timeDuration.isNegative) ? timeStr = "-" : timeStr = "+";
       timeStr += " " +

@@ -8,6 +8,7 @@ import 'models/prayerAlarmModel.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'utils/notificationHelper.dart';
 import 'utils/locationHelper.dart';
+import 'utils/workerManagerHelper.dart';
 
 final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
     FlutterLocalNotificationsPlugin();
@@ -27,7 +28,8 @@ void main() async {
   await initNotifications(flutterLocalNotificationsPlugin);
   requestIOSPermissions(flutterLocalNotificationsPlugin);
   await requestLocationPermision();
-  
+  await initWorkerManager();
+
   runApp(
     MyApp(),
   );
