@@ -66,12 +66,12 @@ class _SettingWidgetState extends State<SettingWidget> {
   }
 
   Future<Map<String, dynamic>> _getSettingParams() async {
-    Map<String, dynamic> mapData = {};
     final savedParams = await getSavedPrayerParams();
     final workerLastRunDate = await getWorkerLastRunDate();
     methodIndex = savedParams['prayerMethodIndex'];
     madhabIndex = savedParams['prayerMadhabIndex'];
 
+    print(workerLastRunDate);
     return {
       'methodIndex': methodIndex,
       'madhabIndex': madhabIndex,

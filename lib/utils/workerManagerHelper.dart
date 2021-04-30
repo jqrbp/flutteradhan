@@ -34,13 +34,12 @@ Future<void> _updateAlarmBackgroundFunc(inputData) async {
 
   final CalculationParameters params = await getPrayerParams();
   final Coordinates coords = await getSavedCoordinates();
-  final PrayerTimes prayerTimes = PrayerTimes.today(coords, params);
+  // final PrayerTimes prayerTimes = PrayerTimes.today(coords, params);
 
-  Prayer.values.forEach((p) {
-    getAlarmFlag(p.index).then((flag) {
-      setAlarmNotification(prayerTimes, p.index, flag);
-    });
-  });
+  // Prayer.values.forEach((p) {
+  //   await getAlarmFlag(p.index);
+  //     setAlarmNotification(prayerTimes, p.index, flag);
+  // });
 
   _saveWorkerLastRunDate(DateTime.now());
   print('===> latitude: ' +
@@ -69,7 +68,6 @@ Future<void> enablePeriodicTask(String id, String taskName, Duration duration,
   await workManager.registerPeriodicTask(id, taskName,
       frequency: duration,
       inputData: inputData,
-      initialDelay: Duration(seconds: 5),
       existingWorkPolicy: ExistingWorkPolicy.replace);
 }
 
