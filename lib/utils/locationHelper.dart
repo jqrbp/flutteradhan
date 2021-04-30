@@ -1,8 +1,7 @@
 import 'package:adhan/adhan.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:permission_handler/permission_handler.dart' as permHandler;
-import 'package:hive/hive.dart';
-import '../models/savedCoordinateModel.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 Future<permHandler.PermissionStatus> requestLocationPermision() async {
   Map<permHandler.Permission, permHandler.PermissionStatus> statuses = await [
@@ -53,17 +52,17 @@ Future<Coordinates> getCoordinates() async {
   return coordinates;
 }
 
-saveCoordinates(Coordinates coord) async {
-  Box<SavedCoordinate> _hiveBox = Hive.box<SavedCoordinate>('savedCoordinate');
-  _hiveBox.put("coordinate",
-      SavedCoordinate(latitude: coord.latitude, longitude: coord.longitude));
+Future<void> saveCoordinates(Coordinates coord) async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  await prefs.setDouble('latitude', coord.latitude);
+  await prefs.setDouble('longitude', coord.longitude);
 }
 
-Coordinates getSavedCoordinates() {
-  Box<SavedCoordinate> _hiveBox = Hive.box<SavedCoordinate>('savedCoordinate');
-  SavedCoordinate coord = _hiveBox.get("coordinate");
-  if (coord != null) {
-    return Coordinates(coord.latitude, coord.longitude);
+Future<Coordinates> getSavedCoordinates() async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  if (prefs.containsKey('latitude') && prefs.containsKey('longitude')) {
+    return Coordinates(
+        prefs.getDouble('latitude'), prefs.getDouble('longitude'));
   }
 
   return Coordinates(0, 0);

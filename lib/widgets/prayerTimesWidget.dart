@@ -30,26 +30,35 @@ class _PrayerTimesWidgetState extends State<PrayerTimesWidget> {
 
   @override
   void initState() {
-    _myCoordinates = getSavedCoordinates();
-    _prayerTimes = PrayerTimes.today(_myCoordinates, getPrayerParams());
-
-    _latitudeText.text = _myCoordinates.latitude.toString();
-    _longitudeText.text = _myCoordinates.longitude.toString();
-
-    alarmFlag = Prayer.values.map((p) {
-      bool flag = getAlarmFlag(p.index);
-      setAlarmNotification(_prayerTimes, p.index, flag);
-      return flag;
-    }).toList();
-
-    _timer = Timer.periodic(Duration(seconds: 60), (Timer t) {
-      setState(() {
-        _prayerTimes = PrayerTimes.today(_myCoordinates, getPrayerParams());
-      });
-    });
+    // alarmFlag = Prayer.values.map((p) {
+    //   getAlarmFlag(p.index).then((flag) {
+    //     if (_prayerTimes != null)
+    //       setAlarmNotification(_prayerTimes, p.index, flag);
+    //     return flag;
+    //   });
+    // }).toList();
 
     enablePeriodicTask(updatePrayerTimeTaskID, updatePrayerTimeTaskName,
-        Duration(minutes: 15));
+        Duration(minutes: 15), {
+      'latitude': _myCoordinates != null ? _myCoordinates?.latitude : 0,
+      'longitude': _myCoordinates != null ? _myCoordinates?.longitude : 0,
+      'prayerMethodIndex': _prayerTimes != null
+          ? _prayerTimes?.calculationParameters?.method?.index
+          : 0,
+      'prayerMadhabIndex': _prayerTimes != null
+          ? _prayerTimes?.calculationParameters?.madhab?.index
+          : 0
+    });
+
+    _timer = Timer.periodic(Duration(seconds: 60), (Timer t) {
+      if (_myCoordinates != null) {
+        getPrayerParams().then((v) {
+          setState(() {
+            _prayerTimes = PrayerTimes.today(_myCoordinates, v);
+          });
+        });
+      }
+    });
 
     super.initState();
   }
@@ -84,6 +93,12 @@ class _PrayerTimesWidgetState extends State<PrayerTimesWidget> {
   }
 
   Future<List<Widget>> _genListViewItems() async {
+    final params = await getPrayerParams();
+    _myCoordinates ??= await getSavedCoordinates();
+    _prayerTimes ??= PrayerTimes.today(_myCoordinates, params);
+    _latitudeText.text = _myCoordinates.latitude.toString();
+    _longitudeText.text = _myCoordinates.longitude.toString();
+
     List<Widget> listViewItems = [];
     listViewItems.add(ListTile(
       title: Text(
@@ -136,6 +151,7 @@ class _PrayerTimesWidgetState extends State<PrayerTimesWidget> {
             .format(SunnahTimes(_prayerTimes).lastThirdOfTheNight),
       ),
     );
+
     return listViewItems;
   }
 
@@ -206,8 +222,9 @@ class _PrayerTimesWidgetState extends State<PrayerTimesWidget> {
     });
   }
 
-  _setNewCoordinates(Coordinates coordinates) {
-    var prayerTimes = PrayerTimes.today(coordinates, getPrayerParams());
+  _setNewCoordinates(Coordinates coordinates) async {
+    final params = await getPrayerParams();
+    var prayerTimes = PrayerTimes.today(coordinates, params);
     Prayer.values.forEach((p) {
       turnOffNotificationById(flutterLocalNotificationsPlugin, p.index);
       setAlarmNotification(_prayerTimes, p.index, alarmFlag[p.index]);

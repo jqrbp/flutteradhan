@@ -1,6 +1,5 @@
 import 'package:adhan/adhan.dart';
-import 'package:hive/hive.dart';
-import '../models/prayerParameterModel.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 Duration getTimeDiff(DateTime _time) {
   return DateTime.now().difference(_time);
@@ -23,19 +22,32 @@ DateTime getPrayerTime(PrayerTimes _prayerTimes, Prayer _prayer) {
   }
 }
 
-CalculationParameters getPrayerParams() {
+Future<CalculationParameters> getPrayerParams() async {
   CalculationParameters prayerParams;
-  Box<PrayerParameter> _hiveBox = Hive.box<PrayerParameter>('setting');
-  PrayerParameter param = _hiveBox.get("prayerParams");
-  if (param != null) {
-    prayerParams = CalculationMethod.values[param.methodIndex].getParameters();
-    prayerParams.madhab = Madhab.values[param.madhabIndex];
-  } else {
-    prayerParams = CalculationMethod.values[0].getParameters();
-    prayerParams.madhab = Madhab.values[0];
-    _hiveBox.put(
-        "prayerParams", PrayerParameter(methodIndex: 0, madhabIndex: 0));
-  }
+  final savedParams = await getSavedPrayerParams();
+  prayerParams = CalculationMethod.values[savedParams['prayerMethodIndex']]
+      .getParameters();
+  prayerParams.madhab = Madhab.values[savedParams['prayerMadhabIndex']];
 
   return prayerParams;
+}
+
+Future<Map<String, int>> getSavedPrayerParams() async {
+  int methodIndex = 0;
+  int madhabIndex = 0;
+
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  if (prefs.containsKey('prayerMethodIndex') &&
+      prefs.containsKey('prayerMadhabIndex')) {
+    methodIndex = prefs.getInt('prayerMethodIndex');
+    madhabIndex = prefs.getInt('prayerMadhabIndex');
+  }
+
+  return {'prayerMethodIndex': methodIndex, 'prayerMadhabIndex': madhabIndex};
+}
+
+Future<void> savePrayerParams(int methodIndex, int madhabIndex) async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  await prefs.setInt('prayerMethodIndex', methodIndex);
+  await prefs.setInt('prayerMadhabIndex', madhabIndex);
 }

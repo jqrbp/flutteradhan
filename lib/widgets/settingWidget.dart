@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutteradhan/utils/prayerTimesHelper.dart';
 import 'package:settings_ui/settings_ui.dart';
-import 'package:hive/hive.dart';
 import 'package:adhan/adhan.dart';
-import '../models/prayerParameterModel.dart';
 import 'optionWidget.dart';
 import '../models/idLocale.dart';
 import '../utils/workerManagerHelper.dart';
@@ -13,51 +12,71 @@ class SettingWidget extends StatefulWidget {
 }
 
 class _SettingWidgetState extends State<SettingWidget> {
-  bool lockInBackground = true;
-  bool notificationsEnabled = true;
   int methodIndex;
   int madhabIndex;
 
   @override
-  void initState() {
-    super.initState();
-    _checkSettingParameters();
+  Widget build(BuildContext context) {
+    return FutureBuilder(
+        future: _getSettingParams(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.done) {
+            if (snapshot.hasData) {
+              return SettingsList(
+                sections: [
+                  SettingsSection(
+                    tiles: [
+                      SettingsTile(
+                        title: 'Worker Info',
+                        subtitle: snapshot.data['workerLastRunDate'],
+                        leading: Icon(Icons.work),
+                        enabled: false,
+                      ),
+                      SettingsTile(
+                        title: 'Metode Perhitungan',
+                        subtitle: methodTitles[CalculationMethod
+                                .values[snapshot.data['methodIndex']]] ??=
+                            CalculationMethod
+                                .values[snapshot.data['methodIndex']]
+                                .toString(),
+                        leading: Icon(Icons.calculate),
+                        onPressed: (context) {
+                          _onPressedMethodSelection(context);
+                        },
+                      ),
+                      SettingsTile(
+                        title: 'Mazhab',
+                        subtitle: madhabTitles[
+                                Madhab.values[snapshot.data['madhabIndex']]] ??=
+                            Madhab.values[snapshot.data['madhabIndex']]
+                                .toString(),
+                        leading: Icon(Icons.calculate),
+                        onPressed: (context) {
+                          _onPressedMadhabSelection(context);
+                        },
+                      ),
+                    ],
+                  ),
+                ],
+              );
+            }
+          }
+          return Center(child: Text('Memuat Data'));
+        });
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return SettingsList(
-      sections: [
-        SettingsSection(
-          tiles: [
-            SettingsTile(
-              title: 'Worker Info',
-              subtitle: getTaskStatus(updatePrayerTimeTaskID).toString(),
-              leading: Icon(Icons.work),
-              enabled: false,
-            ),
-            SettingsTile(
-              title: 'Metode Perhitungan',
-              subtitle: methodTitles[CalculationMethod.values[methodIndex]] ??=
-                  CalculationMethod.values[methodIndex].toString(),
-              leading: Icon(Icons.calculate),
-              onPressed: (context) {
-                _onPressedMethodSelection(context);
-              },
-            ),
-            SettingsTile(
-              title: 'Mazhab',
-              subtitle: madhabTitles[Madhab.values[madhabIndex]] ??=
-                  Madhab.values[madhabIndex].toString(),
-              leading: Icon(Icons.calculate),
-              onPressed: (context) {
-                _onPressedMadhabSelection(context);
-              },
-            ),
-          ],
-        ),
-      ],
-    );
+  Future<Map<String, dynamic>> _getSettingParams() async {
+    Map<String, dynamic> mapData = {};
+    final savedParams = await getSavedPrayerParams();
+    final workerLastRunDate = await getWorkerLastRunDate();
+    methodIndex = savedParams['prayerMethodIndex'];
+    madhabIndex = savedParams['prayerMadhabIndex'];
+
+    return {
+      'methodIndex': methodIndex,
+      'madhabIndex': madhabIndex,
+      'workerLastRunDate': workerLastRunDate
+    };
   }
 
   _onPressedMadhabSelection(BuildContext context) async {
@@ -95,17 +114,6 @@ class _SettingWidgetState extends State<SettingWidget> {
   }
 
   _writeSettingPrayerParams(int _methodIndex, int _madhabIndex) {
-    Box<PrayerParameter> _hiveBox = Hive.box<PrayerParameter>('setting');
-    _hiveBox.put("prayerParams",
-        PrayerParameter(methodIndex: _methodIndex, madhabIndex: _madhabIndex));
-  }
-
-  _checkSettingParameters() {
-    Box<PrayerParameter> _hiveBox = Hive.box<PrayerParameter>('setting');
-    PrayerParameter param = _hiveBox.get("prayerParams");
-    setState(() {
-      methodIndex = param.methodIndex;
-      madhabIndex = param.madhabIndex;
-    });
+    savePrayerParams(_methodIndex, _madhabIndex);
   }
 }

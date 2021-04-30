@@ -1,6 +1,5 @@
-import 'package:hive/hive.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:adhan/adhan.dart';
-import '../models/prayerAlarmModel.dart';
 import '../utils/notificationHelper.dart';
 import '../main.dart';
 import '../models/idLocale.dart';
@@ -31,19 +30,16 @@ void setAlarmNotification(
   }
 }
 
-void saveAlarmFlag(int index, bool flag) {
-  Box<PrayerAlarm> _hiveBox = Hive.box<PrayerAlarm>('prayerAlarm');
-  _hiveBox.put(
-      index.toString(), PrayerAlarm(alarmFlag: flag, alarmIndex: index));
+Future<void> saveAlarmFlag(int index, bool flag) async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  await prefs.setBool('alarm$index', flag);
 }
 
-bool getAlarmFlag(int index) {
-  Box<PrayerAlarm> _hiveBox = Hive.box<PrayerAlarm>('prayerAlarm');
-  PrayerAlarm alarm = _hiveBox.get(index.toString());
-
-  if (alarm != null) {
-    return alarm.alarmFlag;
+Future<bool> getAlarmFlag(int index) async {
+  bool flag = false;
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  if (prefs.containsKey('alarm$index')) {
+    flag = prefs.getBool('alarm$index');
   }
-  saveAlarmFlag(index, false);
-  return false;
+  return flag;
 }

@@ -1,12 +1,11 @@
 import 'package:flutteradhan/utils/notificationHelper.dart';
 import 'package:workmanager/workmanager.dart';
-import 'package:adhan/adhan.dart';
-import '../utils/alarmHelper.dart';
+import '../main.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../utils/locationHelper.dart';
+import 'package:adhan/adhan.dart';
 import '../utils/prayerTimesHelper.dart';
-import '../models/taskModel.dart';
-import 'package:hive/hive.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import '../utils/alarmHelper.dart';
 
 final workManager = Workmanager();
 const updatePrayerTimeTaskID = '50';
@@ -16,7 +15,7 @@ void callbackDispatcher() {
   workManager.executeTask((task, inputData) async {
     switch (task) {
       case updatePrayerTimeTaskName:
-        _updateAlarmBackgroundFunc();
+        _updateAlarmBackgroundFunc(inputData);
         break;
     }
 
@@ -24,36 +23,30 @@ void callbackDispatcher() {
   });
 }
 
-void _saveTaskStatus(String id, TaskStatus status) {
-  Box<TaskStatus> _hiveBox = Hive.box<TaskStatus>('taskStatus');
-  _hiveBox.put(id, status);
+Future<void> _saveWorkerLastRunDate(DateTime date) async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  await prefs.setString('workerLastRunDate', date.toUtc().toString());
 }
 
-void _updateAlarmBackgroundFunc() {
-  bool flag;
-  final Coordinates coords = getSavedCoordinates();
-  final PrayerTimes prayerTimes = PrayerTimes.today(coords, getPrayerParams());
+Future<void> _updateAlarmBackgroundFunc(inputData) async {
+  showNotification(flutterLocalNotificationsPlugin, 100, 'updateAlarm',
+      'Waktu Sholat', 'Memperbaharui data...', 'item');
 
-  FlutterLocalNotificationsPlugin workerNotificationPlugin = new FlutterLocalNotificationsPlugin();
-      
-  // app_icon needs to be a added as a drawable
-  // resource to the Android head project.
-  var android = new AndroidInitializationSettings('app_icon');
-  var iOS = new IOSInitializationSettings();
-    
-  // initialise settings for both Android and iOS device.
-  var settings = new InitializationSettings(android: android, iOS: iOS);
-  
+  final CalculationParameters params = await getPrayerParams();
+  final Coordinates coords = await getSavedCoordinates();
+  final PrayerTimes prayerTimes = PrayerTimes.today(coords, params);
+
   Prayer.values.forEach((p) {
-    flag = getAlarmFlag(p.index);
-    setAlarmNotification(prayerTimes, p.index, flag);
+    getAlarmFlag(p.index).then((flag) {
+      setAlarmNotification(prayerTimes, p.index, flag);
+    });
   });
 
-  _saveTaskStatus(updatePrayerTimeTaskID, TaskStatus(id: updatePrayerTimeTaskID, lastAccessTime: DateTime.now().toString()));
-
-  workerNotificationPlugin.initialize(settings);
-  showNotification(workerNotificationPlugin, 100, 'updateAlarm',
-      'Waktu Sholat', 'Memperbaharui data...', 'item');
+  _saveWorkerLastRunDate(DateTime.now());
+  print('===> latitude: ' +
+      coords.latitude.toString() +
+      ', longitude: ' +
+      coords.longitude.toString());
 }
 
 Future<void> initWorkerManager() async {
@@ -71,25 +64,19 @@ Future<void> cancelTask(String id) async {
   await workManager.cancelByUniqueName(id);
 }
 
-Future<void> enablePeriodicTask(
-    String id, String taskName, Duration duration) async {
-  // if (_getTaskRunFlag(id)) return;
-  // _saveTaskStatus(id, TaskStatus(id: id, runFlag: true));
-  await workManager.registerPeriodicTask(
-    id,
-    taskName,
-    frequency: duration,
-    existingWorkPolicy: ExistingWorkPolicy.replace
-  );
+Future<void> enablePeriodicTask(String id, String taskName, Duration duration,
+    Map<String, dynamic> inputData) async {
+  await workManager.registerPeriodicTask(id, taskName,
+      frequency: duration,
+      inputData: inputData,
+      initialDelay: Duration(seconds: 5),
+      existingWorkPolicy: ExistingWorkPolicy.replace);
 }
 
-TaskStatus getTaskStatus(String id) {
-  Box<TaskStatus> _hiveBox = Hive.box<TaskStatus>('taskStatus');
-  TaskStatus status = _hiveBox.get(id);
-
-  if (status == null) {
-    status = TaskStatus(id: id, lastAccessTime: DateTime.now().toString());
-    _saveTaskStatus(id, status);
+Future<String> getWorkerLastRunDate() async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  if (prefs.containsKey('workerLastRunDate')) {
+    return prefs.getString('workerLastRunDate');
   }
-  return status;
+  return 'Not Found';
 }

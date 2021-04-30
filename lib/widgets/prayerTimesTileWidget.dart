@@ -25,10 +25,12 @@ class PrayerTimesTileWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bool currPrayerFlag =
-        prayer == null ? false : prayerTimes.currentPrayer() == prayer;
-    final bool nextPrayerFlag =
-        prayer == null ? false : prayerTimes.nextPrayer() == prayer;
+    final bool currPrayerFlag = (prayer == null || prayerTimes == null)
+        ? false
+        : prayerTimes.currentPrayer() == prayer;
+    final bool nextPrayerFlag = (prayer == null || prayerTimes == null)
+        ? false
+        : prayerTimes.nextPrayer() == prayer;
     final Color textColor = !disableFlag
         ? _genTextColor(currPrayerFlag, nextPrayerFlag)
         : Colors.blueGrey;
