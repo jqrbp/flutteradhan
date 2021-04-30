@@ -18,6 +18,9 @@ void main() async {
   requestIOSPermissions(flutterLocalNotificationsPlugin);
   await requestLocationPermision();
   await initWorkerManager();
+  
+  await enablePeriodicTask(updatePrayerTimeTaskID, updatePrayerTimeTaskName,
+          Duration(hours: 3), {'date': DateTime.now().toString()});
 
   runApp(
     MyApp(),

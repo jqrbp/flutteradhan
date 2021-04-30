@@ -28,38 +28,30 @@ class _PrayerTimesWidgetState extends State<PrayerTimesWidget> {
     return false;
   }).toList();
 
+  Future<void> _initStateAsync() async {
+    final params = await getPrayerParams();
+    _myCoordinates ??= await getSavedCoordinates();
+    _prayerTimes ??= PrayerTimes.today(_myCoordinates, params);
+    _latitudeText.text = _myCoordinates.latitude.toString();
+    _longitudeText.text = _myCoordinates.longitude.toString();
+
+    Prayer.values.forEach((p) async {
+      alarmFlag[p.index] = await getAlarmFlag(p.index);
+      setAlarmNotification(_prayerTimes, p.index, alarmFlag[p.index]);
+    });
+
+    _timer = Timer.periodic(Duration(seconds: 60), (Timer t) async {
+      final _params = await getPrayerParams();
+      final coords = await getSavedCoordinates();
+      setState(() {
+        _prayerTimes = PrayerTimes.today(coords, _params);
+      });
+    });
+  }
+
   @override
   void initState() {
-    // alarmFlag = Prayer.values.map((p) {
-    //   getAlarmFlag(p.index).then((flag) {
-    //     if (_prayerTimes != null)
-    //       setAlarmNotification(_prayerTimes, p.index, flag);
-    //     return flag;
-    //   });
-    // }).toList();
-
-    enablePeriodicTask(updatePrayerTimeTaskID, updatePrayerTimeTaskName,
-        Duration(minutes: 15), {
-      'latitude': _myCoordinates != null ? _myCoordinates?.latitude : 0,
-      'longitude': _myCoordinates != null ? _myCoordinates?.longitude : 0,
-      'prayerMethodIndex': _prayerTimes != null
-          ? _prayerTimes?.calculationParameters?.method?.index
-          : 0,
-      'prayerMadhabIndex': _prayerTimes != null
-          ? _prayerTimes?.calculationParameters?.madhab?.index
-          : 0
-    });
-
-    _timer = Timer.periodic(Duration(seconds: 60), (Timer t) {
-      if (_myCoordinates != null) {
-        getPrayerParams().then((v) {
-          setState(() {
-            _prayerTimes = PrayerTimes.today(_myCoordinates, v);
-          });
-        });
-      }
-    });
-
+    _initStateAsync().then((_) => setState((){}));
     super.initState();
   }
 
@@ -93,12 +85,6 @@ class _PrayerTimesWidgetState extends State<PrayerTimesWidget> {
   }
 
   Future<List<Widget>> _genListViewItems() async {
-    final params = await getPrayerParams();
-    _myCoordinates ??= await getSavedCoordinates();
-    _prayerTimes ??= PrayerTimes.today(_myCoordinates, params);
-    _latitudeText.text = _myCoordinates.latitude.toString();
-    _longitudeText.text = _myCoordinates.longitude.toString();
-
     List<Widget> listViewItems = [];
     listViewItems.add(ListTile(
       title: Text(
@@ -147,8 +133,8 @@ class _PrayerTimesWidgetState extends State<PrayerTimesWidget> {
       PrayerTimesTileWidget(
         prayerTimes: _prayerTimes,
         prayerName: "Qiyam",
-        prayerTime: DateFormat.jm()
-            .format(SunnahTimes(_prayerTimes).lastThirdOfTheNight),
+        prayerTime: _prayerTimes!=null?DateFormat.jm()
+            .format(SunnahTimes(_prayerTimes).lastThirdOfTheNight):DateTime.now(),
       ),
     );
 

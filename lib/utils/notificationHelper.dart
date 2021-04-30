@@ -83,6 +83,9 @@ Future<void> scheduleNotification(
     String title,
     String body,
     DateTime scheduledNotificationDateTime) async {
+
+  tz.initializeTimeZones();
+  
   var tzTime = tz.TZDateTime.from(
     scheduledNotificationDateTime,
     tz.local,

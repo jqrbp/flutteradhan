@@ -1,11 +1,11 @@
 import 'package:flutteradhan/utils/notificationHelper.dart';
 import 'package:workmanager/workmanager.dart';
-import '../main.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../utils/locationHelper.dart';
 import 'package:adhan/adhan.dart';
 import '../utils/prayerTimesHelper.dart';
 import '../utils/alarmHelper.dart';
+import '../main.dart';
 
 final workManager = Workmanager();
 const updatePrayerTimeTaskID = '50';
@@ -15,6 +15,7 @@ void callbackDispatcher() {
   workManager.executeTask((task, inputData) async {
     switch (task) {
       case updatePrayerTimeTaskName:
+        await _saveWorkerLastRunDate(DateTime.now());
         _updateAlarmBackgroundFunc(inputData);
         break;
     }
@@ -23,29 +24,26 @@ void callbackDispatcher() {
   });
 }
 
-Future<void> _saveWorkerLastRunDate(DateTime date) async {
+Future<bool> _saveWorkerLastRunDate(DateTime dateIn) async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
-  await prefs.setString('workerLastRunDate', date.toUtc().toString());
+  return await prefs.setString('wrtime', dateIn.toString());
 }
 
 Future<void> _updateAlarmBackgroundFunc(inputData) async {
   showNotification(flutterLocalNotificationsPlugin, 100, 'updateAlarm',
       'Waktu Sholat', 'Memperbaharui data...', 'item');
 
-  final CalculationParameters params = await getPrayerParams();
   final Coordinates coords = await getSavedCoordinates();
-  // final PrayerTimes prayerTimes = PrayerTimes.today(coords, params);
+  final CalculationParameters params = await getPrayerParams();
+  final PrayerTimes prayerTimes = PrayerTimes.today(coords, params);
 
-  // Prayer.values.forEach((p) {
-  //   await getAlarmFlag(p.index);
-  //     setAlarmNotification(prayerTimes, p.index, flag);
-  // });
+  Prayer.values.forEach((p) async {
+    if (await getAlarmFlag(p.index)) {
+      setAlarmNotification(prayerTimes, p.index, true);
+    }
+  });
 
-  _saveWorkerLastRunDate(DateTime.now());
-  print('===> latitude: ' +
-      coords.latitude.toString() +
-      ', longitude: ' +
-      coords.longitude.toString());
+  print('===> worker done');
 }
 
 Future<void> initWorkerManager() async {
@@ -73,8 +71,8 @@ Future<void> enablePeriodicTask(String id, String taskName, Duration duration,
 
 Future<String> getWorkerLastRunDate() async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
-  if (prefs.containsKey('workerLastRunDate')) {
-    return prefs.getString('workerLastRunDate');
+  if (prefs.containsKey('wrtime')) {
+    return prefs.getString('wrtime');
   }
   return 'Not Found';
 }

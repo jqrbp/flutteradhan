@@ -25,6 +25,14 @@ class PrayerTimesTileWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    
+    if (prayerTimes == null) {
+      return ListTile(
+      leading: Icon(Icons.block),
+      title: Text(prayerName),
+      subtitle: Text('Memuat data...'));
+    }
+
     final bool currPrayerFlag = (prayer == null || prayerTimes == null)
         ? false
         : prayerTimes.currentPrayer() == prayer;

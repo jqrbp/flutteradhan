@@ -6,6 +6,10 @@ Duration getTimeDiff(DateTime _time) {
 }
 
 DateTime getPrayerTime(PrayerTimes _prayerTimes, Prayer _prayer) {
+  if (_prayerTimes == null) {
+    return DateTime.now();
+  }
+  
   switch (_prayer) {
     case Prayer.fajr:
       return _prayerTimes.fajr;

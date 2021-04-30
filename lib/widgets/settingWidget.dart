@@ -12,71 +12,55 @@ class SettingWidget extends StatefulWidget {
 }
 
 class _SettingWidgetState extends State<SettingWidget> {
-  int methodIndex;
-  int madhabIndex;
+  int methodIndex = 0;
+  int madhabIndex = 0;
+  String workerLastRunStr = '';
+
+  Future<void> _initStateAsync() async {
+    final savedParams = await getSavedPrayerParams();
+    workerLastRunStr = await getWorkerLastRunDate();
+    methodIndex = savedParams['prayerMethodIndex'];
+    madhabIndex = savedParams['prayerMadhabIndex'];
+  }
+
+  @override
+  void initState() {
+    _initStateAsync().then((_) => setState((){}));
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder(
-        future: _getSettingParams(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.done) {
-            if (snapshot.hasData) {
-              return SettingsList(
-                sections: [
-                  SettingsSection(
-                    tiles: [
-                      SettingsTile(
-                        title: 'Worker Info',
-                        subtitle: snapshot.data['workerLastRunDate'],
-                        leading: Icon(Icons.work),
-                        enabled: false,
-                      ),
-                      SettingsTile(
-                        title: 'Metode Perhitungan',
-                        subtitle: methodTitles[CalculationMethod
-                                .values[snapshot.data['methodIndex']]] ??=
-                            CalculationMethod
-                                .values[snapshot.data['methodIndex']]
-                                .toString(),
-                        leading: Icon(Icons.calculate),
-                        onPressed: (context) {
-                          _onPressedMethodSelection(context);
-                        },
-                      ),
-                      SettingsTile(
-                        title: 'Mazhab',
-                        subtitle: madhabTitles[
-                                Madhab.values[snapshot.data['madhabIndex']]] ??=
-                            Madhab.values[snapshot.data['madhabIndex']]
-                                .toString(),
-                        leading: Icon(Icons.calculate),
-                        onPressed: (context) {
-                          _onPressedMadhabSelection(context);
-                        },
-                      ),
-                    ],
-                  ),
-                ],
-              );
-            }
-          }
-          return Center(child: Text('Memuat Data'));
-        });
-  }
-
-  Future<Map<String, dynamic>> _getSettingParams() async {
-    final savedParams = await getSavedPrayerParams();
-    final workerLastRunDate = await getWorkerLastRunDate();
-    methodIndex = savedParams['prayerMethodIndex'];
-    madhabIndex = savedParams['prayerMadhabIndex'];
-
-    print(workerLastRunDate);
-    return {
-      'methodIndex': methodIndex,
-      'madhabIndex': madhabIndex,
-      'workerLastRunDate': workerLastRunDate
-    };
+    return SettingsList(
+      sections: [
+        SettingsSection(
+          tiles: [
+            SettingsTile(
+              title: 'Worker Info',
+              subtitle: workerLastRunStr,
+              leading: Icon(Icons.work),
+              enabled: false,
+            ),
+            SettingsTile(
+              title: 'Metode Perhitungan',
+              subtitle: methodTitles[CalculationMethod.values[methodIndex]],
+              leading: Icon(Icons.calculate),
+              onPressed: (context) {
+                _onPressedMethodSelection(context);
+              },
+            ),
+            SettingsTile(
+              title: 'Mazhab',
+              subtitle: madhabTitles[Madhab.values[madhabIndex]],
+              leading: Icon(Icons.calculate),
+              onPressed: (context) {
+                _onPressedMadhabSelection(context);
+              },
+            ),
+          ],
+        ),
+      ],
+    );
   }
 
   _onPressedMadhabSelection(BuildContext context) async {
