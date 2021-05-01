@@ -167,8 +167,8 @@ class _CalendarPageState extends State<CalendarPage> {
                       style: TextStyle(fontSize: 10),
                     )),),
                 Container(
-                    margin: const EdgeInsets.only(top: 4.0, right:4.0),
-                    alignment: Alignment.topCenter,
+                    margin: const EdgeInsets.only(right:5.0),
+                    alignment: Alignment.center,
                     child: Text(
                       HijriCalendar.fromDate(date).hDay.toString() +
                           ' ' +
