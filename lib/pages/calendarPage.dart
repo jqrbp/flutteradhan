@@ -130,16 +130,19 @@ class _CalendarPageState extends State<CalendarPage> {
                 ),
               ),
               Container(
+                margin: EdgeInsets.only(left: 8.0),
                 alignment: Alignment.topLeft,
                 child: Text(
                   HijriCalendar.fromDate(date).hDay.toString(),
                   style: TextStyle(
                     color: Colors.black,
+                    fontSize: 11,
                   ),
                 ),
               ),
             ]),
             markerBuilder: (context, date, events) => Container(
+              margin: EdgeInsets.only(right: 4.0),
               alignment: Alignment.bottomRight,
               child: events.length > 0
                   ? Container(
