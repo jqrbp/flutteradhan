@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:table_calendar/table_calendar.dart';
-
+import 'package:hijri/hijri_calendar.dart';
+import '../models/idLocale.dart';
 import '../utils/calendarHelper.dart';
 
 class CalendarPage extends StatefulWidget {
@@ -114,41 +115,70 @@ class _CalendarPageState extends State<CalendarPage> {
             _focusedDay = focusedDay;
           },
           calendarBuilders: CalendarBuilders(
-            defaultBuilder: (context, date, events) => Container(
-                alignment: Alignment.topCenter,
+            defaultBuilder: (context, date, events) => Stack(children: [
+              Container(
+                alignment: Alignment.center,
                 decoration: BoxDecoration(
                     color: Colors.transparent,
                     borderRadius: BorderRadius.circular(10.0)),
                 child: Text(
                   date.day.toString(),
-                  style: TextStyle(color: Colors.black),
-                )),
+                  style: TextStyle(
+                      color: Colors.black,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 18),
+                ),
+              ),
+              Container(
+                alignment: Alignment.topLeft,
+                child: Text(
+                  HijriCalendar.fromDate(date).hDay.toString(),
+                  style: TextStyle(
+                    color: Colors.black,
+                  ),
+                ),
+              ),
+            ]),
             markerBuilder: (context, date, events) => Container(
               alignment: Alignment.bottomRight,
               child: events.length > 0
                   ? Container(
                       decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(4.0),
-                        border: Border.all(width: 5.0, color: Colors.orange),
-                        color: Colors.orange,
+                        shape: BoxShape.circle,
+                        // borderRadius: BorderRadius.circular(4.0),
+                        border: Border.all(width: 3.0, color: Colors.red),
+                        color: Colors.red,
                       ),
                       child: Text(events.length.toString(),
-                          style: TextStyle(color: Colors.white)))
+                          style: TextStyle(color: Colors.white, fontSize: 10)))
                   : null,
             ),
-            selectedBuilder: (context, date, events) => Container(
-                margin: const EdgeInsets.all(4.0),
-                alignment: Alignment.topLeft,
-                decoration: BoxDecoration(
-                    // color: Theme.of(context).primaryColor,
-                    color: Colors.lightBlue,
-                    borderRadius: BorderRadius.circular(10.0)),
-                child: Container(
-                    margin: EdgeInsets.all(3),
-                    child: Text(
+            selectedBuilder: (context, date, events) => Stack(
+              children: [
+                Container(
+                    margin: const EdgeInsets.only(bottom:5.0, right: 4.0),
+                    alignment: Alignment.topLeft,
+                    decoration: BoxDecoration(
+                        // color: Theme.of(context).primaryColor,
+                        color: Colors.lightBlue,
+                        borderRadius: BorderRadius.circular(10.0)),
+                    child: Container(margin: const EdgeInsets.all(4.0),child:Text(
                       date.day.toString(),
-                      style: TextStyle(color: Colors.white),
-                    ))),
+                      style: TextStyle(fontSize: 10),
+                    )),),
+                Container(
+                    margin: const EdgeInsets.only(top: 4.0, right:4.0),
+                    alignment: Alignment.topCenter,
+                    child: Text(
+                      HijriCalendar.fromDate(date).hDay.toString() +
+                          ' ' +
+                          bulanNames[HijriCalendar.fromDate(date).hMonth],
+                      style: TextStyle(color: Colors.white, fontSize: 12),
+                      textAlign: TextAlign.center,
+                    ),
+                ),
+              ],
+            ),
             todayBuilder: (context, date, events) => Container(
                 margin: const EdgeInsets.all(4.0),
                 alignment: Alignment.topLeft,

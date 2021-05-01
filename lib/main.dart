@@ -20,7 +20,7 @@ void main() async {
   await initWorkerManager();
   
   await enablePeriodicTask(updatePrayerTimeTaskID, updatePrayerTimeTaskName,
-          Duration(hours: 3), {'date': DateTime.now().toString()});
+          Duration(hours: 12), {'date': DateTime.now().toString()});
 
   runApp(
     MyApp(),
