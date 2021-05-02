@@ -28,11 +28,8 @@ Libraries Dependencies:
 
 ## ScreenShots:
 
-[Halaman Jam Sholat](https://github.com/jqrbp/flutteradhan/screenshots/jamScreenShot.png)
-![alt text](https://github.com/jqrbp/flutteradhan/screenshots/jamScreenShot.png)
+![Halaman Jam Sholat](https://github.com/jqrbp/flutteradhan/blob/develop/screenshots/jamScreenShot.png)
 
-[Halaman Kalender](https://github.com/jqrbp/flutteradhan/screenshots/kalenderScreenShot.png)
-![alt text](https://github.com/jqrbp/flutteradhan/screenshots/kalenderScreenShot.png)
+![Halaman Kalender](https://github.com/jqrbp/flutteradhan/blob/develop/screenshots/kalenderScreenShot.png)
 
-[Halaman Pengaturan](https://github.com/jqrbp/flutteradhan/screenshots/pengaturanScreenShot.png)
-![alt text](https://github.com/jqrbp/flutteradhan/screenshots/pengaturanScreenShot.png)
+![Halaman Pengaturan](https://github.com/jqrbp/flutteradhan/blob/develop/screenshots/pengaturanScreenShot.png)
