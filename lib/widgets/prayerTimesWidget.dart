@@ -120,7 +120,7 @@ class _PrayerTimesWidgetState extends State<PrayerTimesWidget> {
             prayerTimes: _prayerTimes,
             prayer: p,
             prayerName: prayerNames[p.index],
-            prayerTime: DateFormat.jm().format(prayerDateTime),
+            prayerTime: DateFormat.jm('in_ID').format(prayerDateTime),
             disableFlag: p == Prayer.sunrise ? true : false,
             timeDuration: getTimeDiff(prayerDateTime),
             onFlag: alarmFlag[p.index],

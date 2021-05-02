@@ -85,6 +85,7 @@ class _CalendarPageState extends State<CalendarPage> {
     return Column(
       children: [
         TableCalendar<Event>(
+          locale: 'in_ID',
           firstDay: kFirstDay,
           lastDay: kLastDay,
           focusedDay: _focusedDay,
