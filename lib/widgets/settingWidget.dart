@@ -43,7 +43,7 @@ class _SettingWidgetState extends State<SettingWidget> {
             ),
             SettingsTile(
               title: 'Metode Perhitungan',
-              subtitle: methodTitles[CalculationMethod.values[methodIndex]],
+              subtitle: '"' + methodTitles[CalculationMethod.values[methodIndex]] + '"',
               leading: Icon(Icons.calculate),
               onPressed: (context) {
                 _onPressedMethodSelection(context);
@@ -51,7 +51,7 @@ class _SettingWidgetState extends State<SettingWidget> {
             ),
             SettingsTile(
               title: 'Mazhab',
-              subtitle: madhabTitles[Madhab.values[madhabIndex]],
+              subtitle: '"' + madhabTitles[Madhab.values[madhabIndex]] + '"',
               leading: Icon(Icons.calculate),
               onPressed: (context) {
                 _onPressedMadhabSelection(context);
@@ -74,6 +74,7 @@ class _SettingWidgetState extends State<SettingWidget> {
               OptionWidget(title: 'Mazhab', optionNames: names)),
     );
 
+    if (index == null || index == madhabIndex) return;
     _writeSettingPrayerParams(methodIndex, index);
     setState(() {
       madhabIndex = index;
@@ -91,6 +92,7 @@ class _SettingWidgetState extends State<SettingWidget> {
               OptionWidget(title: 'Metode Perhitungan', optionNames: names)),
     );
 
+    if (index == null || index == methodIndex) return;
     _writeSettingPrayerParams(index, madhabIndex);
     setState(() {
       methodIndex = index;

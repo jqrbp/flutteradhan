@@ -39,9 +39,9 @@ class _HomePageState extends State<HomePage> {
         bottomNavigationBar: BottomNavigationBar(
           items: const <BottomNavigationBarItem>[
             BottomNavigationBarItem(
-                icon: Icon(Icons.home), label: 'Halaman Muka'),
+                icon: Icon(Icons.home), label: 'Jam'),
             BottomNavigationBarItem(
-                icon: Icon(Icons.calendar_today), label: 'Kalendar'),
+                icon: Icon(Icons.calendar_today), label: 'Kalender'),
             BottomNavigationBarItem(
                 icon: Icon(Icons.settings), label: 'Pengaturan'),
           ],
