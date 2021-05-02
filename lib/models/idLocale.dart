@@ -32,8 +32,7 @@ const List<String> prayerNames = [
   'Dhuhur',
   'Ashar',
   'Maghrib',
-  'Isya',
-  'Qiyam'
+  'Isya'
 ];
 
 Map<CalculationMethod, String> methodTitles = {

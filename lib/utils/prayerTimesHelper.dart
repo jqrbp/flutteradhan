@@ -13,6 +13,8 @@ DateTime getPrayerTime(PrayerTimes _prayerTimes, Prayer _prayer) {
   switch (_prayer) {
     case Prayer.fajr:
       return _prayerTimes.fajr;
+    case Prayer.sunrise:
+      return _prayerTimes.sunrise;
     case Prayer.dhuhr:
       return _prayerTimes.dhuhr;
     case Prayer.asr:

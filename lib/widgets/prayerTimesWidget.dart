@@ -113,16 +113,15 @@ class _PrayerTimesWidgetState extends State<PrayerTimesWidget> {
       ),
     ));
     Prayer.values.forEach((p) {
-      final prayerDateTime = getPrayerTime(_prayerTimes, p);
       if (p != Prayer.none)
         listViewItems.add(
           PrayerTimesTileWidget(
             prayerTimes: _prayerTimes,
             prayer: p,
             prayerName: prayerNames[p.index],
-            prayerTime: DateFormat.jm('in_ID').format(prayerDateTime),
+            prayerTime: DateFormat.jm('in_ID').format(_prayerTimes.timeForPrayer(p)),
             disableFlag: p == Prayer.sunrise ? true : false,
-            timeDuration: getTimeDiff(prayerDateTime),
+            timeDuration: getTimeDiff(_prayerTimes.timeForPrayer(p)),
             onFlag: alarmFlag[p.index],
             onAlarmPressed: () =>
                 _onAlarmPressed(p.index, _prayerTimes.timeForPrayer(p)),
@@ -133,7 +132,7 @@ class _PrayerTimesWidgetState extends State<PrayerTimesWidget> {
       PrayerTimesTileWidget(
         prayerTimes: _prayerTimes,
         prayerName: "Qiyam",
-        prayerTime: _prayerTimes!=null?DateFormat.jm()
+        prayerTime: _prayerTimes!=null?DateFormat.jm('in_ID')
             .format(SunnahTimes(_prayerTimes).lastThirdOfTheNight):DateTime.now(),
       ),
     );
