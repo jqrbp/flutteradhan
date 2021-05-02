@@ -15,6 +15,7 @@ void callbackDispatcher() {
   workManager.executeTask((task, inputData) async {
     switch (task) {
       case updatePrayerTimeTaskName:
+        await _saveWorkerLastRunDate(DateTime.now());
         await _updateAlarmBackgroundFunc(inputData);
         break;
     }
@@ -39,10 +40,8 @@ Future<void> _updateAlarmBackgroundFunc(inputData) async {
     }
   });
 
-  await _saveWorkerLastRunDate(DateTime.now());
-
-  showNotification(flutterLocalNotificationsPlugin, 100, 'updateAlarm',
-      'Waktu Sholat', 'Memperbaharui data...', 'item');
+  // showNotification(flutterLocalNotificationsPlugin, 100, 'updateAlarm',
+  //     'Waktu Sholat', 'Memperbaharui data...', 'item');
 }
 
 Future<void> initWorkerManager() async {

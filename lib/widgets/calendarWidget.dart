@@ -152,7 +152,7 @@ class _CalendarPageState extends State<CalendarPage> {
                         border: Border.all(width: 3.0, color: Colors.red),
                         color: Colors.red,
                       ),
-                      child: Text(events.length.toString(),
+                      child: Text('*',
                           style: TextStyle(color: Colors.white, fontSize: 10)))
                   : null,
             ),
@@ -210,7 +210,7 @@ class _CalendarPageState extends State<CalendarPage> {
                       vertical: 4.0,
                     ),
                     decoration: BoxDecoration(
-                      border: Border.all(),
+                      border: Border.all(color: Colors.red.shade500),
                       borderRadius: BorderRadius.circular(12.0),
                     ),
                     child: ListTile(

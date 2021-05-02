@@ -19,7 +19,7 @@ Map<int, String> bulanNames = {
   6: 'Jumadil Akhir',
   7: 'Rajab',
   8: 'Sya\'ban',
-  9: 'Ramadhan',
+  9: 'Ramadan',
   10: 'Syawal',
   11: 'Dzulkaidah',
   12: 'Dzulhijah'

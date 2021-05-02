@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../widgets/prayerTimesWidget.dart';
 import '../widgets/settingWidget.dart';
-import 'calendarPage.dart';
+import '../widgets/calendarWidget.dart';
 
 class HomePage extends StatefulWidget {
   HomePage({Key key, this.title}) : super(key: key);
@@ -30,6 +30,7 @@ class _HomePageState extends State<HomePage> {
         body: PageView(
             controller: _pageController,
             onPageChanged: _onPageControllerChanged,
+            physics: BouncingScrollPhysics(),
             children: [
               PrayerTimesWidget(),
               CalendarPage(),
@@ -60,6 +61,6 @@ class _HomePageState extends State<HomePage> {
 
   void _onItemTapped(int index) {
     _pageController.animateToPage(index,
-        duration: Duration(milliseconds: 400), curve: Curves.ease);
+        duration: Duration(milliseconds: 400), curve: Curves.fastOutSlowIn);
   }
 }
