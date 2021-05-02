@@ -1,6 +1,6 @@
 # flutteradhan
 
-A new Flutter project.
+Aplikasi Daftar Waktu Sholat Menggunakan Flutter.
 
 ## Getting Started
 
@@ -14,3 +14,25 @@ A few resources to get you started if this is your first Flutter project:
 For help getting started with Flutter, view our
 [online documentation](https://flutter.dev/docs), which offers tutorials,
 samples, guidance on mobile development, and a full API reference.
+
+## Important Library
+
+Libraries Dependencies:
+
+- [Adhan Time Calculation: adhan](https://pub.dev/packages/adhan)
+- [Hijri Calendar: hijri](https://pub.dev/packages/hijri)
+- [Local Notification: flutter_local_notifications](https://pub.dev/packages/flutter_local_notifications)
+- [Background Worker: work_manager](https://pub.dev/packages/workmanager)
+- [Persistent Data: sharedpreferences](https://pub.dev/packages/shared_preferences)
+- [Locales / Internationalization for Indonesian time/date locale / conversion](https://pub.dev/packages/intl)
+
+## ScreenShots:
+
+[Halaman Jam Sholat](https://github.com/jqrbp/flutteradhan/screenshots/jamScreenShot.png)
+![alt text](https://github.com/jqrbp/flutteradhan/screenshots/jamScreenShot.png)
+
+[Halaman Kalender](https://github.com/jqrbp/flutteradhan/screenshots/kalenderScreenShot.png)
+![alt text](https://github.com/jqrbp/flutteradhan/screenshots/kalenderScreenShot.png)
+
+[Halaman Pengaturan](https://github.com/jqrbp/flutteradhan/screenshots/pengaturanScreenShot.png)
+![alt text](https://github.com/jqrbp/flutteradhan/screenshots/pengaturanScreenShot.png)
